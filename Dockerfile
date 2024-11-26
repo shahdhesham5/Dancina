@@ -1,24 +1,26 @@
-
-
 # Official Python runtime
 FROM python:3.9-slim
 
 # Project work directorty
-WORKDIR /usr/src/app
+WORKDIR /eventcalendar
+
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    build-essential \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy the local project directory to the container
-COPY . .
+COPY requirements.txt /eventcalendar/
 
 # Install module dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make migrations, as described in the install tutorial from the original repository
-RUN python manage.py makemigrations && python manage.py migrate
+COPY . /eventcalendar
 
 # Expose the port for public access
-ENV DJANGO_DEV_SERVER_PORT 8000
-EXPOSE $DJANGO_DEV_SERVER_PORT
+EXPOSE 8000
 
-# Set the default command to run the Django dev server
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Command to run the Django application (using Gunicorn for production)
+CMD ["gunicorn", "eventcalendar.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2"]
 

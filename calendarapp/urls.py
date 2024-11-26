@@ -1,9 +1,9 @@
 from django.urls import path
 
 from . import views
+from .views.views import get_instructors, add_instructor, get_studios, add_studio, get_packages, add_package
 
 app_name = "calendarapp"
-
 
 urlpatterns = [
     path("calender/", views.CalendarViewNew.as_view(), name="calendar"),
@@ -38,4 +38,10 @@ urlpatterns = [
         views.CompletedEventsListView.as_view(),
         name="completed_events",
     ),
+    path("instructors/",get_instructors,name="instructors"),
+    path("add_instructor/",add_instructor,name="add_instructor"),
+    path("studios/",get_studios,name="studios"),
+    path("add_studio/",add_studio,name="add_studio"),
+    path("packages/",get_packages,name="packages"),
+    path('add_package/',add_package, name='add_package'),
 ]

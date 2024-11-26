@@ -1,38 +1,34 @@
 services:
 
-  # web service, frontend and backend included
-  web:
-    build: .  # build the docker, using the dockfile in current dir
-
-    command: python manage.py runserver 0.0.0.0:8000
-
-    ports:
-      - "8000:8000"
-
-    volumes:
-      - .:/usr/src/app  # mount the project dir to the docker
-    
-    environment:
-      - DJANGO_DEV_SERVER_PORT=8000
-    
-    depends_on:
-      - db
-  
-
   db:
-    image: postgres:latest
-
-    environment:
-      POSTGRES_DB: calendar_db
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: "!!UZH_CNSP24_CALENDAR!!"
-
+    image: postgres:13
+    container_name: django_dancina_db
     ports:
-      - "5432:5432"
-
+      - "5437:5432"
+    env_file:
+      - .env
     volumes:
       - db_data:/var/lib/postgresql/data  # pesistantly store the data even when the docker is deleted or stopped
-  
+
+  web:
+    build: .  
+    container_name: django_dancina
+    command: >
+      sh -c "
+             python /eventcalendar/manage.py collectstatic --noinput &&
+             python /eventcalendar/manage.py makemigrations --no-input &&
+             python /eventcalendar/manage.py migrate --no-input &&
+             gunicorn eventcalendar.wsgi --bind 0.0.0.0:8000 --workers 2
+            "
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - .:/eventcalendar  # mount the project dir to the docker
+    depends_on:
+      - db
+
 volumes:
  db_data:
 

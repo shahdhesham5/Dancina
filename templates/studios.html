@@ -1,0 +1,147 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+  <div>
+      <h1><i class="fa fa-map-marker"></i> Studios</h1>
+  </div>
+  <ul class="app-breadcrumb breadcrumb">
+      <button id="add-Studio" type="button" class="btn btn-primary">Add New Studio</button>
+  </ul>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+            <div class="tile-body">
+                <div class="table-responsive">
+                    <div id="sampleTable_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4 no-footer">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table class="table table-hover table-bordered dataTable no-footer" id="sampleTable" role="grid" aria-describedby="sampleTable_info">
+                                    <thead>
+                                        <tr role="row">
+                                            <th class="sorting_asc" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 261.641px;">SL</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Name</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Location</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for studio in studios_list %}
+                                            <tr role="row" class="odd">
+                                                <td class="sorting_1">{{ forloop.counter }}</td>
+                                                <td>{{ studio.name }}</td>
+                                                <td>{{ studio.address }}</td>
+                                                
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal to add Studio -->
+    <div class="modal fade" id="StudioModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Studio</h5>
+                    <button id="modalClose1" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="studioForm" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="name" class="col-form-label">Name:</label>
+                            <input type="text" id="name" name="name" class="form-control" value="{{ form.name.value|default:'' }}" placeholder="Enter studio's name">
+                            <span class="text-danger" id="name-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="address" class="col-form-label">Location:</label>
+                            <input type="text" id="address" name="address" class="form-control" value="{{ form.address.value|default:'' }}" placeholder="Enter location">
+                            <span class="text-danger" id="address-error"></span>
+                        </div>                        
+                    </div>
+                    <div class="modal-footer">
+                        <button id="modalClose" type="button" class="btn btn-danger">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<script type="text/javascript" src="{% static 'js/plugins/jquery.dataTables.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/plugins/dataTables.bootstrap.min.js' %}"></script>
+<script type="text/javascript">$('#sampleTable').DataTable();</script>
+<script>
+   document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("add-Studio").addEventListener("click", function() {
+        $('#StudioModal').modal('show');
+    });
+
+    const studioForm = document.querySelector('#studioForm');
+    studioForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent traditional form submission
+
+        const formData = new FormData(studioForm);
+        console.log([...formData]);
+        fetch("{% url 'calendarapp:add_studio' %}", { 
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": formData.get('csrfmiddlewaretoken')
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data.errors);  // Log errors to the console
+            if (data.success) {
+                alert(data.message);
+                $('#StudioModal').modal('hide');
+                studioForm.reset();
+                location.replace("{% url 'calendarapp:studios' %}");
+            } else {
+                // Reset all error messages
+                document.querySelectorAll('.text-danger').forEach(function(errorSpan) {
+                    errorSpan.textContent = '';
+                });
+
+                // Display errors from the response
+                const errors = data.errors;
+                Object.keys(errors).forEach(field => {
+                    const errorElement = document.querySelector(`#${field}-error`);
+                    if (errorElement && errors[field] && errors[field].length > 0) {
+                        errorElement.textContent = errors[field].join(', ');
+                    }
+                });
+            }
+        })
+
+        .catch(error => console.error("Error:", error));
+    });
+
+    document.getElementById("modalClose").addEventListener("click", function() {
+        $('#StudioModal').modal('hide');
+    });
+
+    document.getElementById("modalClose1").addEventListener("click", function() {
+        $('#StudioModal').modal('hide');
+    });
+});
+</script>
+
+{% endblock extrascripts %}

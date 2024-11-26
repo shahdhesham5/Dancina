@@ -1,0 +1,159 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+  <div>
+      <h1><i class="fa fa-chalkboard-teacher"></i> Instructors</h1>
+  </div>
+  <ul class="app-breadcrumb breadcrumb">
+      <button id="add-instructor" type="button" class="btn btn-primary">Add New Instructor</button>
+  </ul>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+            <div class="tile-body">
+                <div class="table-responsive">
+                    <div id="sampleTable_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4 no-footer">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table class="table table-hover table-bordered dataTable no-footer" id="sampleTable" role="grid" aria-describedby="sampleTable_info">
+                                    <thead>
+                                        <tr role="row">
+                                            <th class="sorting_asc" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 261.641px;">SL</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Name</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Phone Number</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 102.141px;">Share Percentage for group class</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 102.141px;">Share Percentage for private class</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for instructor in instructors_list %}
+                                            <tr role="row" class="odd">
+                                                <td class="sorting_1">{{ forloop.counter }}</td>
+                                                <td>{{ instructor.name }}</td>
+                                                <td>{{ instructor.phone_number }}</td>
+                                                <td>{{ instructor.share_percentage_group }} %</td>
+                                                <td>{{ instructor.share_percentage_private }} %</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal to add Instructor -->
+    <div class="modal fade" id="InstructorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Instructor</h5>
+                    <button id="modalClose1" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="instructorForm" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="name" class="col-form-label">Name:</label>
+                            <input type="text" id="name" name="name" class="form-control" value="{{ form.name.value|default:'' }}" placeholder="Enter instructor's name">
+                            <span class="text-danger" id="name-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone_number" class="col-form-label">Phone Number:</label>
+                            <input type="text" id="phone_number" name="phone_number" class="form-control" value="{{ form.phone_number.value|default:'' }}" placeholder="Enter phone number">
+                            <span class="text-danger" id="phone_number-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="share_percentage_group" class="col-form-label">Share Percentage for group class:</label>
+                            <input type="number" id="share_percentage_group" name="share_percentage_group" class="form-control" value="{{ form.share_percentage_group.value|default:'' }}" placeholder="Enter share percentage for group class" step="0.01">
+                            <span class="text-danger" id="share_percentage-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="share_percentage_private" class="col-form-label">Share Percentage for private class:</label>
+                            <input type="number" id="share_percentage_private" name="share_percentage_private" class="form-control" value="{{ form.share_percentage_private.value|default:'' }}" placeholder="Enter share percentage for private class" step="0.01">
+                            <span class="text-danger" id="share_percentage-error"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="modalClose" type="button" class="btn btn-danger">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<script type="text/javascript" src="{% static 'js/plugins/jquery.dataTables.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/plugins/dataTables.bootstrap.min.js' %}"></script>
+<script type="text/javascript">$('#sampleTable').DataTable();</script>
+<script>
+   document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("add-instructor").addEventListener("click", function() {
+        $('#InstructorModal').modal('show');
+    });
+
+    const instructorForm = document.querySelector('#instructorForm');
+    instructorForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent traditional form submission
+
+        const formData = new FormData(instructorForm);
+
+        fetch("{% url 'calendarapp:add_instructor' %}", { 
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": formData.get('csrfmiddlewaretoken')
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                $('#InstructorModal').modal('hide');
+                instructorForm.reset();
+                // You can optionally reload the list of instructors here
+                location.replace("{% url 'calendarapp:instructors' %}");
+            } else {
+                // Reset all error messages
+                document.querySelectorAll('.text-danger').forEach(function(errorSpan) {
+                    errorSpan.textContent = '';
+                });
+
+                // Display errors from the response
+                const errors = data.errors;
+                Object.keys(errors).forEach(field => {
+                    const errorElement = document.querySelector(`#${field}-error`);
+                    if (errorElement) {
+                        errorElement.textContent = errors[field].join(', ');
+                    }
+                });
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    });
+
+    document.getElementById("modalClose").addEventListener("click", function() {
+        $('#InstructorModal').modal('hide');
+    });
+
+    document.getElementById("modalClose1").addEventListener("click", function() {
+        $('#InstructorModal').modal('hide');
+    });
+});
+</script>
+
+{% endblock extrascripts %}

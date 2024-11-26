@@ -2,3 +2,8 @@ asgiref==3.7.2
 sqlparse==0.5.0
 coverage==7.6.4
 Django==4.2.16
+psycopg2-binary==2.9.10
+gunicorn==23.0.0
+fontawesomefree==6.6.0
+django-environ==0.11.2
+packaging==24.2

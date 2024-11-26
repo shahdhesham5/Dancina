@@ -1,10 +1,32 @@
 from django.contrib import admin
-from calendarapp import models
+from calendarapp.models.event import StudioLocation, Instructor, PackageType, Package, Event
+from calendarapp.models.event_member import EventMember
+@admin.register(StudioLocation)
+class StudioLocationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'address')
+    search_fields = ('name',)
 
 
-@admin.register(models.Event)
+@admin.register(Instructor)
+class InstructorAdmin(admin.ModelAdmin):
+    list_display = ('name', 'phone_number', 'share_percentage_group','share_percentage_private')
+    search_fields = ('name', 'phone_number')
+
+@admin.register(PackageType)
+class PackageTypeAdmin(admin.ModelAdmin):
+    model = PackageType
+    list_display = ('name',)
+    
+@admin.register(Package)
+class PackageAdmin(admin.ModelAdmin):
+    model = Package
+    list_display = ('number_of_sessions', 'member_price', 'non_member_price')
+    
+
+
+@admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
-    model = models.Event
+    model = Event
     list_display = [
         "id",
         "title",
@@ -18,8 +40,8 @@ class EventAdmin(admin.ModelAdmin):
     search_fields = ["title"]
 
 
-@admin.register(models.EventMember)
+@admin.register(EventMember)
 class EventMemberAdmin(admin.ModelAdmin):
-    model = models.EventMember
+    model = EventMember
     list_display = ["id", "event", "user", "created_at", "updated_at"]
     list_filter = ["event"]

@@ -1,5 +1,4 @@
 # cal/views.py
-
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.views import generic
@@ -15,7 +14,6 @@ from django.shortcuts import get_object_or_404
 from calendarapp.models import EventMember, Event
 from calendarapp.utils import Calendar
 from calendarapp.forms import EventForm, AddMemberForm
-
 
 def get_date(req_day):
     if req_day:
@@ -135,15 +133,15 @@ class CalendarViewNew(LoginRequiredMixin, generic.View):
                    "events_month": events_month}
         return render(request, self.template_name, context)
 
-    def post(self, request, *args, **kwargs):
-        forms = self.form_class(request.POST)
-        if forms.is_valid():
-            form = forms.save(commit=False)
-            form.user = request.user
-            form.save()
-            return redirect("calendarapp:calendar")
-        context = {"form": forms}
-        return render(request, self.template_name, context)
+    # def post(self, request, *args, **kwargs):
+    #     forms = self.form_class(request.POST)
+    #     if forms.is_valid():
+    #         form = forms.save(commit=False)
+    #         form.user = request.user
+    #         form.save()
+    #         return redirect("calendarapp:calendar")
+    #     context = {"form": forms}
+    #     return render(request, self.template_name, context)
 
 
 

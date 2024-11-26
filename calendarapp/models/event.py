@@ -1,9 +1,39 @@
 from datetime import datetime
 from django.db import models
 from django.urls import reverse
-
+from django.core.validators import MinValueValidator, MaxValueValidator
 from calendarapp.models import EventAbstract
 from accounts.models import User
+
+class StudioLocation(models.Model):
+    name = models.CharField(max_length=100)
+    address = models.TextField()
+
+    def __str__(self):
+        return self.name
+    
+class Instructor(models.Model):
+    name = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=15)
+    share_percentage_group = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], null=True, blank=True)
+    share_percentage_private = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+class PackageType(models.Model):
+    name = models.CharField(max_length=100)  
+    def __str__(self):
+        return self.name
+    
+class Package(models.Model):
+    package_type = models.ForeignKey(PackageType, on_delete=models.CASCADE, related_name='package_type', null=True, blank=True)
+    number_of_sessions = models.PositiveIntegerField()
+    member_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])      # Price for members
+    non_member_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])  # Price for non-members
+    
+    def __str__(self):
+        return f"Package of {self.number_of_sessions} classes"
 
 
 class EventManager(models.Manager):
@@ -46,6 +76,8 @@ class Event(EventAbstract):
     """ Event model """
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="events")
+    studio_location = models.ForeignKey(StudioLocation, on_delete=models.CASCADE, related_name="events", null=True)
+    instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE, related_name="events", null=True)
     title = models.CharField(max_length=200)
     description = models.TextField()
     start_time = models.DateTimeField()
@@ -63,3 +95,4 @@ class Event(EventAbstract):
     def get_html_url(self):
         url = reverse("calendarapp:event-detail", args=(self.id,))
         return f'<a href="{url}"> {self.title} </a>'
+

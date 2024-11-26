@@ -1,0 +1,195 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+  <div>
+      <h1><i class="fa fa-box"></i> Packages</h1>
+  </div>
+  <ul class="app-breadcrumb breadcrumb">
+      <button id="add-Package" type="button" class="btn btn-primary">Add New Package</button>
+  </ul>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+            <div class="tile-body">
+                <div class="table-responsive">
+                    <div id="sampleTable_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4 no-footer">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                {% for package_type, packages in grouped_packages %}
+                                    <h3>{{ package_type.name }}</h3>
+                                    <table class="table table-hover table-bordered dataTable no-footer" id="sampleTable" role="grid">
+                                        <thead>
+                                            <tr role="row">
+                                                <th>Number of Sessions</th>
+                                                <th>Member Price</th>
+                                                <th>Non-Member Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for package in packages %}
+                                                <tr>
+                                                    <td>{{ package.number_of_sessions }}</td>
+                                                    <td>{{ package.member_price }} LE</td>
+                                                    <td>{{ package.non_member_price }} LE</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+   <!-- modal -->
+   <div class="modal fade" id="PackageModal" tabindex="-1" role="dialog" aria-labelledby="PackageModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary">
+                <h5 class="modal-title text-white" id="PackageModalTitle">Add New Package</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <!-- Phase 1: Select or Add Package Type -->
+            <div id="phase1">
+                <form id="packageTypeForm">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="package_type">Select Package Type:</label>
+                            <select id="package_type" name="package_type" class="form-control">
+                                {% for type in package_types %}
+                                    <option value="{{ type.id }}">{{ type.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="new_package_type">Or Add New Package Type:</label>
+                            <input type="text" id="new_package_type" name="new_package_type" class="form-control" placeholder="Enter new package type">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="nextToPhase2">Next</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Phase 2: Enter Package Details -->
+            <div id="phase2" style="display: none;">
+                <form id="packageDetailsForm">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="number_of_sessions">Number of Sessions:</label>
+                            <input type="number" id="number_of_sessions" name="number_of_sessions" class="form-control" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="member_price">Member Price:</label>
+                            <input type="number" id="member_price" name="member_price" class="form-control" min="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="non_member_price">Non-Member Price:</label>
+                            <input type="number" id="non_member_price" name="non_member_price" class="form-control" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" id="backToPhase1">Back</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+    
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const addPackageButton = document.getElementById('add-Package');
+        const phase1 = document.getElementById('phase1');
+        const phase2 = document.getElementById('phase2');
+        const nextToPhase2 = document.getElementById('nextToPhase2');
+        const backToPhase1 = document.getElementById('backToPhase1');
+        const packageTypeForm = document.getElementById('packageTypeForm');
+        const packageDetailsForm = document.getElementById('packageDetailsForm');
+
+        // Open the modal when "Add New Package" button is clicked
+        addPackageButton.addEventListener('click', function() {
+            $('#PackageModal').modal('show');
+            // Reset phases to start from Phase 1
+            phase1.style.display = "block";
+            phase2.style.display = "none";
+            packageTypeForm.reset();  // Clear form inputs
+            packageDetailsForm.reset();
+        });
+
+        // Move to Phase 2
+        nextToPhase2.addEventListener('click', function(event) {
+            event.preventDefault();
+            const selectedPackageType = document.getElementById('package_type').value;
+            const newPackageType = document.getElementById('new_package_type').value;
+            
+            if (!selectedPackageType && !newPackageType) {
+                alert("Please select or enter a package type.");
+                return;
+            }
+
+            phase1.style.display = "none";
+            phase2.style.display = "block";
+        });
+
+        // Go back to Phase 1
+        backToPhase1.addEventListener('click', function(event) {
+            event.preventDefault();
+            phase2.style.display = "none";
+            phase1.style.display = "block";
+        });
+
+        // Handle form submission
+        packageDetailsForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(packageTypeForm);
+            formData.append('number_of_sessions', document.getElementById('number_of_sessions').value);
+            formData.append('member_price', document.getElementById('member_price').value);
+            formData.append('non_member_price', document.getElementById('non_member_price').value);
+
+            fetch("{% url 'calendarapp:add_package' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    $('#PackageModal').modal('hide');
+                    alert("Package added successfully!");
+                    location.replace("{% url 'calendarapp:packages' %}");
+                } else {
+                    alert("Error adding package: " + JSON.stringify(data.errors));
+                }
+            })
+            .catch(error => console.error("Error:", error));
+        });
+    });
+</script>
+    
+{% endblock extrascripts %}
