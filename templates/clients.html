@@ -3,10 +3,10 @@
 
 {% block breadcrumb %}
   <div>
-      <h1><i class="fa fa-chalkboard-teacher"></i> Instructors</h1>
+      <h1><i class="fa fa-chalkboard-teacher"></i> Clients </h1>
   </div>
   <ul class="app-breadcrumb breadcrumb">
-      <button id="add-instructor" type="button" class="btn btn-primary">Add New Instructor</button>
+      <button id="add-client" type="button" class="btn btn-primary">Add New Client</button>
   </ul>
 {% endblock breadcrumb %}
 
@@ -25,18 +25,22 @@
                                             <th class="sorting_asc" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 261.641px;">SL</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Name</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Phone Number</th>
-                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 102.141px;">Share Percentage for group class</th>
-                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 102.141px;">Share Percentage for private class</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 102.141px;">Email</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 102.141px;">Address</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 102.141px;">Preferred Time</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 102.141px;">Is member</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for instructor in instructors_list %}
+                                        {% for client in clients_list %}
                                             <tr role="row" class="odd">
                                                 <td class="sorting_1">{{ forloop.counter }}</td>
-                                                <td>{{ instructor.name }}</td>
-                                                <td>{{ instructor.phone_number }}</td>
-                                                <td>{{ instructor.share_percentage_group }} %</td>
-                                                <td>{{ instructor.share_percentage_private }} %</td>
+                                                <td>{{ client.name }}</td>
+                                                <td>{{ client.phone_number }}</td>
+                                                <td>{{ client.email }}</td>
+                                                <td>{{ client.address }}</td>
+                                                <td>{{ client.preferred_time }}</td>
+                                                <td>{{ client.is_member }}</td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>
@@ -49,16 +53,16 @@
         </div>
     </div>
     <!-- Modal to add Instructor -->
-    <div class="modal fade" id="InstructorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal fade" id="ClientModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-primary">
-                    <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Instructor</h5>
+                    <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Client</h5>
                     <button id="modalClose1" type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
-                <form id="instructorForm" method="post">
+                <form id="clientForm" method="post">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="form-group">
@@ -72,15 +76,26 @@
                             <span class="text-danger" id="phone_number-error"></span>
                         </div>
                         <div class="form-group">
-                            <label for="share_percentage_group" class="col-form-label">Share Percentage for group class:</label>
-                            <input type="number" id="share_percentage_group" name="share_percentage_group" class="form-control" value="{{ form.share_percentage_group.value|default:'' }}" placeholder="Enter share percentage for group class" step="0.01">
-                            <span class="text-danger" id="share_percentage_group-error"></span>
+                            <label for="email" class="col-form-label">Email:</label>
+                            <input type="text" id="email" name="email" class="form-control" value="{{ form.email.value|default:'' }}" placeholder="Enter email">
+                            <span class="text-danger" id="email-error"></span>
                         </div>
                         <div class="form-group">
-                            <label for="share_percentage_private" class="col-form-label">Share Percentage for private class:</label>
-                            <input type="number" id="share_percentage_private" name="share_percentage_private" class="form-control" value="{{ form.share_percentage_private.value|default:'' }}" placeholder="Enter share percentage for private class" step="0.01">
-                            <span class="text-danger" id="share_percentage_private-error"></span>
+                            <label for="address" class="col-form-label">Address:</label>
+                            <input type="text" id="address" name="address" class="form-control" value="{{ form.address.value|default:'' }}" placeholder="Enter address">
+                            <span class="text-danger" id="address-error"></span>
                         </div>
+                        <div class="form-group">
+                            <label for="preferred_time" class="col-form-label">Preferred Time</label>
+                            <input type="text" id="preferred_time" name="preferred_time" class="form-control" value="{{ form.preferred_time.value|default:'' }}" placeholder="Enter preferred time">
+                            <span class="text-danger" id="preferred_time-error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="is_member" class="col-form-label">Is member:</label>
+                            <input type="checkbox" id="is_member" name="is_member" class="form-check-input" {% if form.is_member.value %}checked{% endif %}>
+                            <span class="text-danger" id="is_member-error"></span>
+                        </div>
+                        
                     </div>
                     <div class="modal-footer">
                         <button id="modalClose" type="button" class="btn btn-danger">Close</button>
@@ -101,17 +116,17 @@
 <script type="text/javascript">$('#sampleTable').DataTable();</script>
 <script>
    document.addEventListener("DOMContentLoaded", function() {
-    document.getElementById("add-instructor").addEventListener("click", function() {
-        $('#InstructorModal').modal('show');
+    document.getElementById("add-client").addEventListener("click", function() {
+        $('#ClientModal').modal('show');
     });
 
-    const instructorForm = document.querySelector('#instructorForm');
-    instructorForm.addEventListener('submit', function(event) {
+    const clientForm = document.querySelector('#clientForm');
+    clientForm.addEventListener('submit', function(event) {
         event.preventDefault(); // Prevent traditional form submission
 
-        const formData = new FormData(instructorForm);
+        const formData = new FormData(clientForm);
 
-        fetch("{% url 'calendarapp:add_instructor' %}", { 
+        fetch("{% url 'clientsapp:add_client' %}", { 
             method: "POST",
             headers: {
                 "X-Requested-With": "XMLHttpRequest",
@@ -123,10 +138,10 @@
         .then(data => {
             if (data.success) {
                 alert(data.message);
-                $('#InstructorModal').modal('hide');
-                instructorForm.reset();
+                $('#ClientModal').modal('hide');
+                clientForm.reset();
                 // You can optionally reload the list of instructors here
-                location.replace("{% url 'calendarapp:instructors' %}");
+                location.replace("{% url 'clientsapp:clients' %}");
             } else {
                 // Reset all error messages
                 document.querySelectorAll('.text-danger').forEach(function(errorSpan) {
@@ -147,11 +162,11 @@
     });
 
     document.getElementById("modalClose").addEventListener("click", function() {
-        $('#InstructorModal').modal('hide');
+        $('#ClientModal').modal('hide');
     });
 
     document.getElementById("modalClose1").addEventListener("click", function() {
-        $('#InstructorModal').modal('hide');
+        $('#ClientModal').modal('hide');
     });
 });
 </script>

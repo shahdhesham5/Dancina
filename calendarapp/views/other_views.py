@@ -1,4 +1,5 @@
 # cal/views.py
+
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.views import generic
@@ -14,6 +15,7 @@ from django.shortcuts import get_object_or_404
 from calendarapp.models import EventMember, Event
 from calendarapp.utils import Calendar
 from calendarapp.forms import EventForm, AddMemberForm
+
 
 def get_date(req_day):
     if req_day:
@@ -52,19 +54,20 @@ class CalendarView(LoginRequiredMixin, generic.ListView):
         context["next_month"] = next_month(d)
         return context
 
-
 @login_required(login_url="signup")
 def create_event(request):
     form = EventForm(request.POST or None)
     if request.POST and form.is_valid():
-        title = form.cleaned_data["title"]
-        description = form.cleaned_data["description"]
+        name = form.cleaned_data["name"]
+        studio_location = form.cleaned_data["studio_location"]
+        instructor = form.cleaned_data["instructor"]
         start_time = form.cleaned_data["start_time"]
         end_time = form.cleaned_data["end_time"]
         Event.objects.get_or_create(
             user=request.user,
-            title=title,
-            description=description,
+            name=name,
+            studio_location=studio_location,
+            instructor=instructor,
             start_time=start_time,
             end_time=end_time,
         )
@@ -72,10 +75,33 @@ def create_event(request):
     return render(request, "event.html", {"form": form})
 
 
+# @login_required(login_url="signup")
+# def create_event(request):
+#     form = EventForm(request.POST or None)
+#     if request.POST and form.is_valid():
+#         title = form.cleaned_data["title"]
+#         description = form.cleaned_data["description"]
+#         start_time = form.cleaned_data["start_time"]
+#         end_time = form.cleaned_data["end_time"]
+#         Event.objects.get_or_create(
+#             user=request.user,
+#             title=title,
+#             description=description,
+#             start_time=start_time,
+#             end_time=end_time,
+#         )
+#         return HttpResponseRedirect(reverse("calendarapp:calendar"))
+#     return render(request, "event.html", {"form": form})
+
 class EventEdit(generic.UpdateView):
     model = Event
-    fields = ["title", "description", "start_time", "end_time"]
+    fields = ["name", "studio_location", "instructor", "start_time", "end_time"]
     template_name = "event.html"
+
+# class EventEdit(generic.UpdateView):
+#     model = Event
+#     fields = ["title", "description", "start_time", "end_time"]
+#     template_name = "event.html"
 
 
 @login_required(login_url="signup")
@@ -121,27 +147,30 @@ class CalendarViewNew(LoginRequiredMixin, generic.View):
         # start: '2020-09-16T16:00:00'
         for event in events:
             event_list.append(
-                {   "id": event.id,
-                    "title": event.title,
+                {   
+                    "id": event.id,
+                    "title": event.name,  # Changed from event.title to event.name
                     "start": event.start_time.strftime("%Y-%m-%dT%H:%M:%S"),
                     "end": event.end_time.strftime("%Y-%m-%dT%H:%M:%S"),
-                    "description": event.description,
+                    "studio_location": str(event.studio_location),  # Optional, if needed
+                    "instructor": str(event.instructor),  # Optional, if needed
                 }
             )
+
         
         context = {"form": forms, "events": event_list,
                    "events_month": events_month}
         return render(request, self.template_name, context)
 
-    # def post(self, request, *args, **kwargs):
-    #     forms = self.form_class(request.POST)
-    #     if forms.is_valid():
-    #         form = forms.save(commit=False)
-    #         form.user = request.user
-    #         form.save()
-    #         return redirect("calendarapp:calendar")
-    #     context = {"form": forms}
-    #     return render(request, self.template_name, context)
+    def post(self, request, *args, **kwargs):
+        forms = self.form_class(request.POST)
+        if forms.is_valid():
+            form = forms.save(commit=False)
+            form.user = request.user
+            form.save()
+            return redirect("calendarapp:calendar")
+        context = {"form": forms}
+        return render(request, self.template_name, context)
 
 
 

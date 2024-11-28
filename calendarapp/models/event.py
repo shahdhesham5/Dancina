@@ -34,6 +34,10 @@ class Package(models.Model):
     
     def __str__(self):
         return f"Package of {self.number_of_sessions} classes"
+    
+    def get_price(self, is_member):
+        return self.member_price if is_member else self.non_member_price
+
 
 
 class EventManager(models.Manager):
@@ -78,15 +82,14 @@ class Event(EventAbstract):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="events")
     studio_location = models.ForeignKey(StudioLocation, on_delete=models.CASCADE, related_name="events", null=True)
     instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE, related_name="events", null=True)
-    title = models.CharField(max_length=200)
-    description = models.TextField()
+    name = models.CharField(max_length=200, null=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
 
     objects = EventManager()
 
     def __str__(self):
-        return self.title
+        return self.name
 
     def get_absolute_url(self):
         return reverse("calendarapp:event-detail", args=(self.id,))
@@ -94,5 +97,5 @@ class Event(EventAbstract):
     @property
     def get_html_url(self):
         url = reverse("calendarapp:event-detail", args=(self.id,))
-        return f'<a href="{url}"> {self.title} </a>'
+        return f'<a href="{url}"> {self.name} </a>'
 

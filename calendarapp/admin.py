@@ -29,15 +29,19 @@ class EventAdmin(admin.ModelAdmin):
     model = Event
     list_display = [
         "id",
-        "title",
+        "name",
+        "studio_location",
+        "instructor",
         "user",
+        "start_time",
+        "end_time",
         "is_active",
         "is_deleted",
         "created_at",
         "updated_at",
     ]
     list_filter = ["is_active", "is_deleted"]
-    search_fields = ["title"]
+    search_fields = ["name"]
 
 
 @admin.register(EventMember)

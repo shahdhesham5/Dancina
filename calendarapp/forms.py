@@ -6,34 +6,48 @@ from calendarapp.models.event import Instructor, StudioLocation, Package
 class EventForm(ModelForm):
     class Meta:
         model = Event
-        fields = ["title", "description", "start_time", "end_time"]
-        # datetime-local is a HTML5 input type
+        fields = ["name", "studio_location", "instructor", "start_time", "end_time"]
         widgets = {
-            "title": forms.TextInput(
-                attrs={"class": "form-control", "placeholder": "Enter event title"}
-            ),
-            "description": forms.Textarea(
-                attrs={
-                    "class": "form-control",
-                    "placeholder": "Enter event description",
-                }
-            ),
-            "start_time": DateInput(
-                attrs={"type": "datetime-local", "class": "form-control"},
-                format="%Y-%m-%dT%H:%M",
-            ),
-            "end_time": DateInput(
-                attrs={"type": "datetime-local", "class": "form-control"},
-                format="%Y-%m-%dT%H:%M",
-            ),
+            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter event name"}),
+            "studio_location": forms.Select(attrs={"class": "form-control"}),
+            "instructor": forms.Select(attrs={"class": "form-control"}),
+            "start_time": DateInput(attrs={"type": "datetime-local", "class": "form-control"}, format="%Y-%m-%dT%H:%M"),
+            "end_time": DateInput(attrs={"type": "datetime-local", "class": "form-control"}, format="%Y-%m-%dT%H:%M"),
         }
         exclude = ["user"]
 
     def __init__(self, *args, **kwargs):
         super(EventForm, self).__init__(*args, **kwargs)
-        # input_formats to parse HTML5 datetime-local input to datetime field
         self.fields["start_time"].input_formats = ("%Y-%m-%dT%H:%M",)
         self.fields["end_time"].input_formats = ("%Y-%m-%dT%H:%M",)
+
+# class EventForm(ModelForm):
+#     class Meta:
+#         model = Event
+#         fields = ["name", "studio_location", "instructor","start_time", "end_time"]
+#         # datetime-local is a HTML5 input type
+#         widgets = {
+#             "name": forms.TextInput(
+#                 attrs={"class": "form-control", "placeholder": "Enter class name"}
+#             ),
+#             "studio_location": forms.Select(attrs={'class': 'form-control'}),
+#             "instructor": forms.Select(attrs={'class': 'form-control'}),
+#             "start_time": DateInput(
+#                 attrs={"type": "datetime-local", "class": "form-control"},
+#                 format="%Y-%m-%dT%H:%M",
+#             ),
+#             "end_time": DateInput(
+#                 attrs={"type": "datetime-local", "class": "form-control"},
+#                 format="%Y-%m-%dT%H:%M",
+#             ),
+#         }
+#         exclude = ["user"]
+
+#     def __init__(self, *args, **kwargs):
+#         super(EventForm, self).__init__(*args, **kwargs)
+#         # input_formats to parse HTML5 datetime-local input to datetime field
+#         self.fields["start_time"].input_formats = ("%Y-%m-%dT%H:%M",)
+#         self.fields["end_time"].input_formats = ("%Y-%m-%dT%H:%M",)
 
 
 class AddMemberForm(forms.ModelForm):

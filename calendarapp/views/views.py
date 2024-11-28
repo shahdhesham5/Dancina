@@ -57,7 +57,7 @@ def add_studio(request):
 
     # Render empty form on GET request
     form = AddStudioForm()
-    return render(request, 'your_template_path.html', {'form': form})
+    return render(request, 'studios.html', {'form': form})
 
 
 @login_required(login_url="signup")
@@ -98,19 +98,3 @@ def add_package(request):
         return JsonResponse({'success': True})
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
-
-
-
-# @csrf_exempt  # Make sure CSRF token is included in AJAX
-# @login_required(login_url="signup")
-# def add_package(request):
-#     if request.method == 'POST':
-#         form = PackageForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             return JsonResponse({'success': True})
-#         else:
-#             return JsonResponse({'success': False, 'errors': form.errors})
-#     else:
-#         form = PackageForm()
-#     return render(request, 'packages.html', {'form': form})

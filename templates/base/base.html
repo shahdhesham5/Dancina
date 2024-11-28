@@ -46,10 +46,10 @@
         <div class="app-sidebar__overlay" data-toggle="sidebar"></div>
         <aside class="app-sidebar">
             <div class="app-sidebar__user">
-                <img class="app-sidebar__user-avatar" src="https://sajib1066.github.io/images/me.jpg" alt="User Image" height="50px" width="50px"/>
+                <img class="app-sidebar__user-avatar" src="{% static 'images/dance_logo.webp' %}" alt="User Image" height="50px" width="50px"/>
                 <div>
                     <p class="app-sidebar__user-name">Nadeen</p>
-                    <p class="app-sidebar__user-designation">Instructor</p>
+                    <p class="app-sidebar__user-designation">Admin</p>
                 </div>
             </div>
             <ul class="app-menu">
@@ -57,22 +57,22 @@
                     <a class="app-menu__item" href="{% url 'dashboard' %}"><i class="app-menu__icon fa fa-dashboard"></i><span class="app-menu__label">Dashboard</span></a>
                 </li>
                 <li>
-                    <a class="app-menu__item" href="{% url 'calendarapp:calendar' %}"><i class="app-menu__icon fa fa-calendar"></i><span class="app-menu__label">Calendar</span></a>
+                    <a class="app-menu__item" href="{% url 'calendarapp:calendar' %}"><i class="app-menu__icon fa-regular fa-calendar-days"></i><span class="app-menu__label">Calendar</span></a>
                 </li>
                 <li class="treeview">
-                    <a class="app-menu__item" href="#" data-toggle="treeview"><i class="app-menu__icon fa fa-th-list"></i><span class="app-menu__label">Events</span><i class="treeview-indicator fa fa-angle-right"></i></a>
+                    <a class="app-menu__item" href="#" data-toggle="treeview"><i class="app-menu__icon fa fa-star"></i><span class="app-menu__label">Classes</span><i class="treeview-indicator fa fa-angle-right"></i></a>
                     <ul class="treeview-menu">
                         <li>
-                            <a class="treeview-item" href="{% url 'calendarapp:running_events' %}"><i class="icon fa fa-circle-o"></i> Running</a>
-                        </li>
-                        <li>
-                            <a class="treeview-item" href="{% url 'calendarapp:upcoming_events' %}"><i class="icon fa fa-circle-o"></i> Upcoming</a>
-                        </li>
-                        <li>
-                            <a class="treeview-item" href="{% url 'calendarapp:completed_events' %}"><i class="icon fa fa-circle-o"></i> Completed</a>
-                        </li>
-                        <li>
                             <a class="treeview-item" href="{% url 'calendarapp:all_events' %}"><i class="icon fa fa-circle-o"></i> All</a>
+                        </li>
+                        <li>
+                            <a class="treeview-item" href="{% url 'calendarapp:running_events' %}"><i class="icon fa fa-circle"></i> Running</a>
+                        </li>
+                        <li>
+                            <a class="treeview-item" href="{% url 'calendarapp:upcoming_events' %}"><i class="icon fa fa-circle"></i> Upcoming</a>
+                        </li>
+                        <li>
+                            <a class="treeview-item" href="{% url 'calendarapp:completed_events' %}"><i class="icon fa fa-circle"></i> Completed</a>
                         </li>
                     </ul>
                 </li> 
@@ -86,19 +86,19 @@
                     <a class="app-menu__item" href="{% url 'calendarapp:studios' %}"><i class="app-menu__icon fa fa-map-marker"></i><span class="app-menu__label">Studios</span></a>
                 </li>
                 <li>
-                    <a class="app-menu__item" href="{% url 'calendarapp:instructors' %}"><i class="app-menu__icon fa fa-users"></i><span class="app-menu__label">Clients</span></a>
+                    <a class="app-menu__item" href="{% url 'clientsapp:clients' %}"><i class="app-menu__icon fa fa-users"></i><span class="app-menu__label">Clients</span></a>
                 </li>
                 <li>
-                    <a class="app-menu__item" href="{% url 'calendarapp:instructors' %}"><i class="app-menu__icon fa fa-edit"></i><span class="app-menu__label">Registerations</span></a>
+                    <a class="app-menu__item" href="{% url 'clientsapp:registrations' %}"><i class="app-menu__icon fa fa-edit"></i><span class="app-menu__label">Registrations</span></a>
                 </li>
                 <li>
-                    <a class="app-menu__item" href="{% url 'calendarapp:instructors' %}"><i class="app-menu__icon fa fa-exchange-alt"></i><span class="app-menu__label">Transactions</span></a>
+                    <a class="app-menu__item" href="{% url 'clientsapp:clients' %}"><i class="app-menu__icon fa fa-exchange-alt"></i><span class="app-menu__label">Transactions</span></a>
                 </li>
                 <li>
-                    <a class="app-menu__item" href="{% url 'calendarapp:instructors' %}"><i class="app-menu__icon fa fa-money-bill-wave"></i><span class="app-menu__label">Expenses</span></a>
+                    <a class="app-menu__item" href="{% url 'clientsapp:clients' %}"><i class="app-menu__icon fa fa-money-bill-wave"></i><span class="app-menu__label">Expenses</span></a>
                 </li>
                 <li>
-                    <a class="app-menu__item" href="{% url 'calendarapp:instructors' %}"><i class="app-menu__icon fa fa-calendar-day"></i><span class="app-menu__label">Expenses Per Day</span></a>
+                    <a class="app-menu__item" href="{% url 'clientsapp:clients' %}"><i class="app-menu__icon fa fa-calendar-day"></i><span class="app-menu__label">Expenses Per Day</span></a>
                 </li>
             </ul>
         </aside>

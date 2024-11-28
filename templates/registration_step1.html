@@ -1,0 +1,33 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Step 1: Registration Details</h2>
+    <form method="post" action="{% url 'clientsapp:registration_step1' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Next</button>
+        <a href="{% url 'clientsapp:registrations' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
+{% block extrascripts %}
+<script>
+    document.getElementById("id_package_type").addEventListener("change", function () {
+    const packageTypeId = this.value;
+
+    fetch(`/get-packages/?package_type_id=${packageTypeId}`)
+        .then((response) => response.json())
+        .then((data) => {
+            const packageField = document.getElementById("id_package");
+            packageField.innerHTML = ""; // Clear current options
+            data.packages.forEach((pkg) => {
+                const option = document.createElement("option");
+                option.value = pkg.id;
+                option.textContent = pkg.name;
+                packageField.appendChild(option);
+            });
+        });
+});
+
+</script>
+{% endblock extrascripts %}

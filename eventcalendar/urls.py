@@ -25,6 +25,7 @@ urlpatterns =( [
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("", include("calendarapp.urls")),
+    path("", include("clients.urls")),
     ]
     + static(STATIC_URL, document_root=STATIC_ROOT)
     + static(MEDIA_URL, document_root=MEDIA_ROOT)
