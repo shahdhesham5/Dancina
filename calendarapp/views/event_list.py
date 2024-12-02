@@ -10,7 +10,7 @@ class AllEventsListView(ListView):
     model = Event
 
     def get_queryset(self):
-        return Event.objects.get_all_events(user=self.request.user)
+        return Event.objects.get_all_events()
 
 
 class RunningEventsListView(ListView):
@@ -20,7 +20,7 @@ class RunningEventsListView(ListView):
     model = Event
 
     def get_queryset(self):
-        return Event.objects.get_running_events(user=self.request.user)
+        return Event.objects.get_running_events()
 
 class UpcomingEventsListView(ListView):
     """ Upcoming events list view """
@@ -29,7 +29,7 @@ class UpcomingEventsListView(ListView):
     model = Event
 
     def get_queryset(self):
-        return Event.objects.get_upcoming_events(user=self.request.user)
+        return Event.objects.get_upcoming_events()
     
 class CompletedEventsListView(ListView):
     """ Completed events list view """
@@ -38,7 +38,7 @@ class CompletedEventsListView(ListView):
     model = Event
 
     def get_queryset(self):
-        return Event.objects.get_completed_events(user=self.request.user)
+        return Event.objects.get_completed_events()
     
 
 

@@ -1,5 +1,3 @@
-# cal/views.py
-
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.views import generic
@@ -15,93 +13,16 @@ from django.shortcuts import get_object_or_404
 from calendarapp.models import EventMember, Event
 from calendarapp.utils import Calendar
 from calendarapp.forms import EventForm, AddMemberForm
+import json
 
 
-def get_date(req_day):
-    if req_day:
-        year, month = (int(x) for x in req_day.split("-"))
-        return date(year, month, day=1)
-    return datetime.today()
-
-
-def prev_month(d):
-    first = d.replace(day=1)
-    prev_month = first - timedelta(days=1)
-    month = "month=" + str(prev_month.year) + "-" + str(prev_month.month)
-    return month
-
-
-def next_month(d):
-    days_in_month = calendar.monthrange(d.year, d.month)[1]
-    last = d.replace(day=days_in_month)
-    next_month = last + timedelta(days=1)
-    month = "month=" + str(next_month.year) + "-" + str(next_month.month)
-    return month
-
-
-class CalendarView(LoginRequiredMixin, generic.ListView):
-    login_url = "accounts:signin"
-    model = Event
-    template_name = "calendar.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        d = get_date(self.request.GET.get("month", None))
-        cal = Calendar(d.year, d.month)
-        html_cal = cal.formatmonth(withyear=True)
-        context["calendar"] = mark_safe(html_cal)
-        context["prev_month"] = prev_month(d)
-        context["next_month"] = next_month(d)
-        return context
-
-@login_required(login_url="signup")
-def create_event(request):
-    form = EventForm(request.POST or None)
-    if request.POST and form.is_valid():
-        name = form.cleaned_data["name"]
-        studio_location = form.cleaned_data["studio_location"]
-        instructor = form.cleaned_data["instructor"]
-        start_time = form.cleaned_data["start_time"]
-        end_time = form.cleaned_data["end_time"]
-        Event.objects.get_or_create(
-            user=request.user,
-            name=name,
-            studio_location=studio_location,
-            instructor=instructor,
-            start_time=start_time,
-            end_time=end_time,
-        )
-        return HttpResponseRedirect(reverse("calendarapp:calendar"))
-    return render(request, "event.html", {"form": form})
-
-
-# @login_required(login_url="signup")
-# def create_event(request):
-#     form = EventForm(request.POST or None)
-#     if request.POST and form.is_valid():
-#         title = form.cleaned_data["title"]
-#         description = form.cleaned_data["description"]
-#         start_time = form.cleaned_data["start_time"]
-#         end_time = form.cleaned_data["end_time"]
-#         Event.objects.get_or_create(
-#             user=request.user,
-#             title=title,
-#             description=description,
-#             start_time=start_time,
-#             end_time=end_time,
-#         )
-#         return HttpResponseRedirect(reverse("calendarapp:calendar"))
-#     return render(request, "event.html", {"form": form})
+from clients.models import Client, Registration
+from calendarapp.models.event import Instructor
 
 class EventEdit(generic.UpdateView):
     model = Event
-    fields = ["name", "studio_location", "instructor", "start_time", "end_time"]
+    fields = ["title", "description", "start_time", "end_time"]
     template_name = "event.html"
-
-# class EventEdit(generic.UpdateView):
-#     model = Event
-#     fields = ["title", "description", "start_time", "end_time"]
-#     template_name = "event.html"
 
 
 @login_required(login_url="signup")
@@ -141,26 +62,63 @@ class CalendarViewNew(LoginRequiredMixin, generic.View):
 
     def get(self, request, *args, **kwargs):
         forms = self.form_class()
-        events = Event.objects.get_all_events(user=request.user)
-        events_month = Event.objects.get_running_events(user=request.user)
+        # statistical numbers
+         
+        clients = Client.objects.all()
+        registrations = Registration.objects.all()
+        instructors = Instructor.objects.all()
+        allevents = Event.objects.all()
+        events = Event.objects.get_all_events()
+        events_month = Event.objects.get_running_events()
         event_list = []
-        # start: '2020-09-16T16:00:00'
-        for event in events:
-            event_list.append(
-                {   
-                    "id": event.id,
-                    "title": event.name,  # Changed from event.title to event.name
-                    "start": event.start_time.strftime("%Y-%m-%dT%H:%M:%S"),
-                    "end": event.end_time.strftime("%Y-%m-%dT%H:%M:%S"),
-                    "studio_location": str(event.studio_location),  # Optional, if needed
-                    "instructor": str(event.instructor),  # Optional, if needed
-                }
-            )
 
-        
-        context = {"form": forms, "events": event_list,
-                   "events_month": events_month}
+        # Map day names to their corresponding weekday numbers
+        day_mapping = {
+            "Sunday": 6,
+            "Monday": 0,
+            "Tuesday": 1,
+            "Wednesday": 2,
+            "Thursday": 3,
+            "Friday": 4,
+            "Saturday": 5,
+        }
+
+        # Define the date range to generate events for (e.g., next 4 weeks)
+        today = datetime.today()
+        end_date = today + timedelta(weeks=4)
+
+        for event in events:
+            # Convert `event.days` (e.g., "['Sunday', 'Wednesday']") to a Python list
+            days = eval(event.days)  # Ensure `event.days` is stored as a stringified list
+            for day in days:
+                # Find the next occurrence of the day within the range
+                current_date = today
+                while current_date <= end_date:
+                    if current_date.weekday() == day_mapping[day]:
+                        # Add the event for this date
+                        event_list.append({
+                            "id": event.id,
+                            "title": event.name,
+                            "instructor": event.instructor.name,
+                            "location": event.studio_location.name,
+                            "days":event.days,
+                            "start": f"{current_date.strftime('%Y-%m-%d')}T{event.from_time.strftime('%H:%M:%S')}",
+                            "end": f"{current_date.strftime('%Y-%m-%d')}T{event.to_time.strftime('%H:%M:%S')}",
+                        })
+                    # Increment the date
+                    current_date += timedelta(days=1)
+
+        context = {
+            "allevents": allevents.count(),
+            "clients": clients.count(),
+            "registrations" : registrations.count(),
+            "instructors": instructors.count(),
+            "form": forms,
+            "events": json.dumps(event_list),  # Pass JSON to the frontend
+            "events_month": events_month,
+        }
         return render(request, self.template_name, context)
+   
 
     def post(self, request, *args, **kwargs):
         forms = self.form_class(request.POST)
@@ -206,3 +164,26 @@ def next_day(request, event_id):
         return JsonResponse({'message': 'Sucess!'})
     else:
         return JsonResponse({'message': 'Error!'}, status=400)
+
+
+def get_date(req_day):
+    if req_day:
+        year, month = (int(x) for x in req_day.split("-"))
+        return date(year, month, day=1)
+    return datetime.today()
+
+
+def prev_month(d):
+    first = d.replace(day=1)
+    prev_month = first - timedelta(days=1)
+    month = "month=" + str(prev_month.year) + "-" + str(prev_month.month)
+    return month
+
+
+def next_month(d):
+    days_in_month = calendar.monthrange(d.year, d.month)[1]
+    last = d.replace(day=days_in_month)
+    next_month = last + timedelta(days=1)
+    month = "month=" + str(next_month.year) + "-" + str(next_month.month)
+    return month
+

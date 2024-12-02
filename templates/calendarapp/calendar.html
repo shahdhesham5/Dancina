@@ -7,38 +7,75 @@
 {% endblock extracss %}
 
 {% block breadcrumb %}
-  <div>
-      <h1><i class="fa-regular fa-calendar-days"></i> Calendar </h1>
-      <p>Classes Calendar</p>
-  </div>
-  <ul class="app-breadcrumb breadcrumb">
-    <button type="button" class="btn btn-primary" id="addNewClassButton">Add New Class</button>
-  </ul>
-
+<div>
+    <h1><i class="fa-regular fa-calendar-days"></i> Calendar </h1>
+    <p>Classes Calendar</p>
+</div>
+<ul class="app-breadcrumb breadcrumb">
+  <button type="button" class="btn btn-primary" id="addNewClassButton">Add New Class</button>
+</ul>
 {% endblock breadcrumb %}
 
 {% block content %}
 <div class="row">
+    <div class="col-md-6 col-lg-3">
+        <div class="widget-small primary coloured-icon">
+            <i class="icon fa fa-star fa-3x"></i>
+            <div class="info">
+                <h4 style="text-align: center;">Classes</h4>
+                <p style="text-align: center;"><b>{{ allevents }}</b></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="widget-small primary coloured-icon">
+            <i class="icon fa fa-users fa-3x"></i>
+            <div class="info">
+                <h4 style="text-align: center;">Clients</h4>
+                <p style="text-align: center;"><b>{{ clients }}</b></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="widget-small primary coloured-icon">
+            <i class="icon fa fa-edit fa-3x"></i>
+            <div class="info">
+                <h4 style="text-align: center;">Registrations</h4>
+                <p style="text-align: center;"><b>{{ registrations }}</b></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="widget-small primary coloured-icon">
+            <i class="icon fa fa-chalkboard-teacher fa-3x"></i>
+            <div class="info">
+                <h4 style="text-align: center;">Instructors</h4>
+                <p style="text-align: center;"><b>{{ instructors }}</b></p>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="row">
     <div class="col-md-12">
         <div class="tile row">
-            <div class="col-md-3">
+            <!-- <div class="col-md-3">
                 <div id="external-events">
-                    <h4 class="mb-4">Running Classes</h4>
+                    <h4 class="mb-4">Running Events</h4>
                     {% for event in events_month %}
                       <div class="fc-event">
-                          <h3>{{ event.name }}</h3>
-                          <p>{{ event.instructor }}</p>
-                          <p>{{ event.studio_location }}</p>
-                          <p>{{event.id}}</p>
-                          <p>From: {{ event.start_time }}</p>
-                          <p>To: {{ event.end_time }}</p>
+                        <h3>{{ event.name }} Class</h3>
+                        <p>Instructor : {{ event.instructor }}</p>
+                        <p>Location : {{ event.studio_location }}</p>
+                        <p>From: {{ event.from_time }}</p>
+                        <p>To: {{ event.to_time }}</p>
                       </div>
                     {% empty %}
-                      <p>No Running Classes Found</p>
+                      <p>No Running Events Found</p>
                     {% endfor %}
                 </div>
-            </div>
-            <div class="col-md-9">
+            </div> -->
+            <div class="col-md-12">
                 <div id="calendar"></div>
             </div>
 
@@ -46,7 +83,7 @@
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-header bg-primary">
-                            <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Class</h5>
+                            <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Event</h5>
                             <button id="modalClose1" type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -55,25 +92,27 @@
                             {% csrf_token %}
                             <div class="modal-body">
                                 <div class="form-group">
-                                    <label for="recipient-name" class="col-form-label fc-event">Class Name:</label>
+                                    <label for="recipient-name" class="col-form-label">Event Name:</label>
                                     {{ form.name }}
                                 </div>
                                 <div class="form-group">
-                                    <label for="message-text" class="col-form-label fc-event">Location:</label>
+                                    <label for="message-text" class="col-form-label">Location:</label>
                                     {{ form.studio_location }}
                                 </div>
                                 <div class="form-group">
-                                    <label for="message-text" class="col-form-label fc-event">Instructor:</label>
+                                    <label for="message-text" class="col-form-label">Instructor:</label>
                                     {{ form.instructor }}
                                 </div>
-                                
                                 <div class="form-group">
-                                    <label for="message-text" class="col-form-label fc-event">Start Date:</label>
-                                    {{ form.start_time }}
+                                    <label for="message-text" class="col-form-label">Days:</label>
+                                    {{ form.days }}
                                 </div>
                                 <div class="form-group">
-                                    <label for="message-text" class="col-form-label fc-event">End Date:</label>
-                                    {{ form.end_time }}
+                                    <label for="message-text" class="col-form-label"> From:</label>
+                                    {{ form.from_time }}
+                                </div><div class="form-group">
+                                    <label for="message-text" class="col-form-label"> To:</label>
+                                    {{ form.to_time }}
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -96,30 +135,43 @@
                       <form method="">
                           {% csrf_token %}
                           <div class="modal-body">
-                                <div class="form-group">
-                                    <label for="message-text" class="col-form-label fc-event">Location:</label>
-                                    <p id="location_event_detail"></p>
-                                </div>
-                                <div class="form-group">
-                                    <label for="message-text" class="col-form-label fc-event">Instructor:</label>
-                                    <p id="instructor_event_detail"></p>
-                                </div>
-                            
-                                <div class="form-group">
-                                    <label for="message-text" class="col-form-label fc-event">Start:</label>
-                                    <p id = "start_event_detail">
-                                </div>
-                                <div class="form-group">
-                                    <label for="message-text" class="col-form-label fc-event">End:</label>
-                                    <p id = "end_event_detail">
-                                </div>
-                          </div>
+                              
+                              <div class="form-group">
+                                  <label for="message-text" class="col-form-label">Instructor:</label>
+                                  <p id = "instructor_event_detail">
+                                  </p>
+                              </div>
+
+                              <div class="form-group">
+                                <label for="message-text" class="col-form-label">Location:</label>
+                                <p id = "location_event_detail">
+                                </p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label">Days:</label>
+                                <p id = "days_event_detail">
+                                </p>
+                            </div>
+
+                              <div class="form-group">
+                                  <label for="message-text" class="col-form-label">Start:</label>
+                                  <p id = "start_event_detail">
+                              </div>
+
+                              <div class="form-group">
+                                  <label for="message-text" class="col-form-label">End:</label>
+                                  <p id = "end_event_detail">
+                              </div>
+                           
                           <div class="modal-footer">
                               <button id="delete-event-button" data-event-id="" type="button" class="btn btn-danger">Delete</button>
-                              <button id="add-to-next-week" data-event-id-week="" type="button" class="btn btn-success">Next Week</button>
-                              <button id="add-to-next-day" data-event-id-day="" type="button" class="btn btn-primary">Next Day</button>
+
+                              <!-- <button id="add-to-next-week" data-event-id-week="" type="button" class="btn btn-success">Next Week</button> -->
+                              <!-- <button id="add-to-next-day" data-event-id-day="" type="button" class="btn btn-primary">Next Day</button> -->
 
                           </div>
+                        </div>
                       </form>
                   </div>
               </div>
@@ -145,30 +197,7 @@
       return formatoDjango;
       
   }
-    // Function to open the Add Class modal with default or provided start and end times
-    function openAddClassModal(start = null, end = null) {
-        const modal = document.getElementById('eventModal');
-        modal.style.display = 'block';
-
-        // Set default start and end times if not provided
-        const now = new Date();
-        const defaultStart = now.toISOString().slice(0, 16); // Format for input[type=datetime-local]
-        const defaultEnd = new Date(now.getTime() + 60 * 60 * 1000).toISOString().slice(0, 16);
-
-        document.getElementById('id_start_time').value = start || defaultStart;
-        document.getElementById('id_end_time').value = end || defaultEnd;
-    }
-
-
-  document.addEventListener('DOMContentLoaded', function () {
-    const addNewClassButton = document.getElementById('addNewClassButton');
-
-    // Add event listener for the Add New Class button
-    addNewClassButton.addEventListener('click', function () {
-        console.log('clicked#addNewClassButton');
-        openAddClassModal();
-    });
-
+    document.addEventListener('DOMContentLoaded', function() {
       var calendarEl = document.getElementById('calendar');
       var today = new Date();
 
@@ -179,70 +208,82 @@
           right: 'dayGridMonth,timeGridWeek,timeGridDay,list'
         },
         initialDate: today,
-        navLinks: true, // can click day/week names to navigate views
+        navLinks: true, 
         selectable: true,
         selectMirror: true,
-        select: function(arg) {
-          console.log('clicked-Select-event#1')
-          console.log(arg.start)
-          console.log(arg.end)
-          var modal = document.getElementById('eventModal')
-          modal.style.display = 'block'
-          document.getElementById('id_start_time').value = converterDataParaDjangoFormat(arg.start);
-          document.getElementById('id_end_time').value = converterDataParaDjangoFormat(arg.end);
-          openAddClassModal(start, end);
-          calendar.unselect()
-        },
+        // select: function(arg) {
+        //   console.log('clicked')
+        //   console.log(arg.start)
+        //   console.log(arg.end)
+        //   var modal = document.getElementById('eventModal')
+        //   modal.style.display = 'block'
+        //   document.getElementById('id_start_time').value = converterDataParaDjangoFormat(arg.start);
+        //   document.getElementById('id_end_time').value = converterDataParaDjangoFormat(arg.end);
+        //   calendar.unselect()
+        // },
+
         
         eventClick: function(arg) {
           
-          console.log('clicked-eventClick#2')
-          var name = arg.event.title;
-          console.log("event name", name)
+          console.log('clicked', arg.event)
+          var title = arg.event.title;
           var start = formatDateTime(arg.event.start) ;
           var end = formatDateTime(arg.event.end);
-          var studioLocation = arg.event.extendedProps.studio_location || 'Not specified'; // New field
-          var instructor = arg.event.extendedProps.instructor || 'Not specified'; // New field
+          var instructor = arg.event.extendedProps.instructor || '';
+          var location = arg.event.extendedProps.location || '';
+        //   var days = arg.event.extendedProps.days || '';
+          const daysRaw = arg.event.extendedProps.days; // e.g., "['Tuesday', 'Friday']"
+          const daysArray = daysRaw.replace(/'/g, '"').slice(1, -1).split(', ');
+          const daysString = daysArray.join(', ');
+
           var id = arg.event.id;
 
           var modalInputEnd = document.getElementById('end_event_detail'); 
 
+          
           var modal = document.getElementById('detailModal')
           var modalTitle = document.getElementById('title_event_detail'); 
           var modalStart = document.getElementById('start_event_detail'); 
           var modalEnd = document.getElementById('end_event_detail'); 
-          var modalLocation = document.getElementById('location_event_detail'); // Assuming this ID exists in your modal
-          var modalInstructor = document.getElementById('instructor_event_detail'); // Assuming this ID exists in your modal 
+          var modalInstructor = document.getElementById('instructor_event_detail'); 
+          var modalLocation = document.getElementById('location_event_detail'); 
+          var modalDays = document.getElementById('days_event_detail'); 
+
+
+          
           var deleteButton = document.getElementById("delete-event-button");
-          var nextWeek = document.getElementById("add-to-next-week");
-          var nextDay = document.getElementById("add-to-next-day");
+        //   var nextWeek = document.getElementById("add-to-next-week");
+        //   var nextDay = document.getElementById("add-to-next-day");
 
           deleteButton.setAttribute("data-event-id", id);
-          nextWeek.setAttribute("data-event-id-week", id);
-          nextDay.setAttribute("data-event-id-day", id);
+        //   nextWeek.setAttribute("data-event-id-week", id);
+        //   nextDay.setAttribute("data-event-id-day", id);
           modal.style.display = 'block' 
           
-          modalTitle.textContent = name;
+          modalTitle.textContent = title;
           modalStart.textContent = start;
           modalEnd.textContent = end;
-          modalLocation.textContent = studioLocation; // Set location value
-          modalInstructor.textContent = instructor; // Set instructor value
+          modalInstructor.textContent = instructor;
+          modalLocation.textContent = location;
+          modalDays.textContent = daysString;
           
          
           modal.style.display = 'block';
         },
-        editable: true,
-        dayMaxEvents: true, // allow "more" link when too many events
-        events: {{ events|safe }},
         
+        editable: true,
+        dayMaxEvents: true,
+        
+        events: JSON.parse('{{ events|escapejs }}'),
 
       });
-      console.log('clicked#4')
 
-      calendar.render();
-      console.log("Events in Template:", {{ events|safe }});
+      calendar.render()
+        document.getElementById('addNewClassButton').addEventListener('click', function () {
+            const modal = document.getElementById('eventModal');
+            modal.style.display = 'block';
+        });
     });
-
     const closeBtn1 = document.getElementById('modalClose1');
     const closeBtn2 = document.getElementById('modalClose2');
     const closeBtn3 = document.getElementById('modalDetailClose');
@@ -265,12 +306,12 @@
     };
     document.getElementById('delete-event-button').addEventListener('click', function() {
       const eventId = this.getAttribute('data-event-id');
-      if (confirm('Are you sure you want to delete this event?')) {
+      if (confirm('Are you sure you want to delete this class?')) {
           $.ajax({
               url: `/delete_event/${eventId}/`,
               type: 'POST',
               data: {
-                  csrfmiddlewaretoken: '{{ csrf_token }}',
+                  csrfmiddlewaretoken: '{{ csrf_token }}'
               },
               success: function(response) {
                   alert(response.message);
@@ -283,44 +324,44 @@
           });
       }});
       
-      document.getElementById('add-to-next-week').addEventListener('click', function() {
-          const eventId = this.getAttribute('data-event-id-week');
-          if (confirm('Are you sure you want add this event to next week?')) {
-              $.ajax({
-                url: `/next_week/${eventId}/`,
-                  type: 'POST',
-                  data: {
-                      csrfmiddlewaretoken: '{{ csrf_token }}',
-                  },
-                  success: function(response) {
-                      alert(response.message);
-                      window.location.reload();
-                  },
-                  error: function(xhr, status, error) {
-                      alert('Error!');
-                  }
-              });
-          }
+    document.getElementById('add-to-next-week').addEventListener('click', function() {
+        const eventId = this.getAttribute('data-event-id-week');
+        if (confirm('Are you sure you want add this event to next week?')) {
+            $.ajax({
+            url: `/next_week/${eventId}/`,
+                type: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    alert(response.message);
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                    alert('Error!');
+                }
+            });
+        }
   });
 
-  document.getElementById('add-to-next-day').addEventListener('click', function() {
-    const eventId = this.getAttribute('data-event-id-day');
-    if (confirm('Are you sure you want add this event to next day?')) {
-        $.ajax({
-          url: `/next_day/${eventId}/`,
-            type: 'POST',
-            data: {
-                csrfmiddlewaretoken: '{{ csrf_token }}',
-            },
-            success: function(response) {
-                alert(response.message);
-                window.location.reload();
-            },
-            error: function(xhr, status, error) {
-                alert('Error!');
-            }
-        });
-    }
+    document.getElementById('add-to-next-day').addEventListener('click', function() {
+        const eventId = this.getAttribute('data-event-id-day');
+        if (confirm('Are you sure you want add this event to next day?')) {
+            $.ajax({
+            url: `/next_day/${eventId}/`,
+                type: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                    alert(response.message);
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                    alert('Error!');
+                }
+            });
+        }
 });
 
 </script>
