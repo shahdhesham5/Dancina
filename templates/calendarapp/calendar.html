@@ -163,7 +163,11 @@
                                   <label for="message-text" class="col-form-label">End:</label>
                                   <p id = "end_event_detail">
                               </div>
-                           
+                              <div class="form-group">
+                              <p><strong>Members:</strong></p>
+                              <ul id="event-members"></ul>
+                              <button id="save-attendance" type="button" class="btn btn-primary mt-2">Save Attendance</button>
+                            </div>
                           <div class="modal-footer">
                               <button id="delete-event-button" data-event-id="" type="button" class="btn btn-danger">Delete</button>
 
@@ -235,6 +239,7 @@
           const daysRaw = arg.event.extendedProps.days; // e.g., "['Tuesday', 'Friday']"
           const daysArray = daysRaw.replace(/'/g, '"').slice(1, -1).split(', ');
           const daysString = daysArray.join(', ');
+          var members = arg.event.extendedProps.members || [];
 
           var id = arg.event.id;
 
@@ -248,8 +253,26 @@
           var modalInstructor = document.getElementById('instructor_event_detail'); 
           var modalLocation = document.getElementById('location_event_detail'); 
           var modalDays = document.getElementById('days_event_detail'); 
+          var membersList = document.getElementById('event-members');
 
+        // Clear and populate members list with checkboxes
+        membersList.innerHTML = ''; // Clear previous members
+        members.forEach(function(member) {
+            var listItem = document.createElement('li');
+            var checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'attendance-checkbox';
+            checkbox.dataset.memberId = member.id;
+            checkbox.dataset.memberName = member.name; // Store member name
+            checkbox.dataset.sessionsLeft = member.sessions_left; // Store sessions left
 
+            var label = document.createElement('label');
+            // listItem.textContent = `${member.client__name} (Sessions left: ${member.classes_left})`;
+            listItem.textContent = `${member.client__name} (Sessions left: ${member.classes_left}, Attended: ${member.classes_attended})`;
+            listItem.appendChild(checkbox);
+            listItem.appendChild(label);
+            membersList.appendChild(listItem);
+        });
           
           var deleteButton = document.getElementById("delete-event-button");
         //   var nextWeek = document.getElementById("add-to-next-week");
@@ -284,6 +307,48 @@
             modal.style.display = 'block';
         });
     });
+
+    document.getElementById('save-attendance').addEventListener('click', function () {
+        var url = "{% url 'clientsapp:save_attendance' %}";
+        var attendanceData = [];
+        
+        document.querySelectorAll('.attendance-checkbox').forEach(function (checkbox) {
+            attendanceData.push({
+                memberId: checkbox.dataset.memberId,
+                attended: checkbox.checked,
+            });
+            console.log({memberId: checkbox.dataset.memberId,attended: checkbox.checked})
+        });
+
+        // Send the attendance data to the server
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCSRFToken(), // Ensure CSRF token is included
+            },
+            body: JSON.stringify({ attendance: attendanceData }),
+        })
+        .then(response => {
+            if (response.ok) {
+                // Close the modal
+                $('#detailModal').modal('hide');
+                // Reload the page or re-render the calendar events
+                window.location.reload();  // Refreshes the page and updates data
+            } else {
+                console.error('Failed to save attendance:', response);
+            }
+        })
+        .catch(error => {
+            console.error('Error saving attendance:', error);
+        });
+    });
+
+    function getCSRFToken() {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    return csrfToken;
+    }
+
     const closeBtn1 = document.getElementById('modalClose1');
     const closeBtn2 = document.getElementById('modalClose2');
     const closeBtn3 = document.getElementById('modalDetailClose');

@@ -5,6 +5,9 @@ from clients.models import Client, Registration
 from calendarapp.models import Event
 from calendarapp.models.event import Package, PackageType
 from clients.forms import ClientForm, RegistrationStep1Form, RegistrationStep2Form
+from django.views.decorators.csrf import csrf_exempt
+import json
+
 
 @login_required(login_url="signup")
 def get_clients(request):
@@ -37,7 +40,6 @@ def get_registrations(request):
     context = {"registrations_list":registrations_list}
     return render(request, 'registrations.html', context)
 
-
 @login_required(login_url="signup")
 def registration_step1(request):
     if request.method == 'POST':
@@ -57,7 +59,6 @@ def registration_step1(request):
     else:
         form = RegistrationStep1Form()
     return render(request, 'registration_step1.html', {'form': form})
-
 
 @login_required(login_url="signup")
 def registration_step2(request):
@@ -89,7 +90,6 @@ def registration_step2(request):
 
     return render(request, 'registration_step2.html', {'form': form, 'package_price': package_price})
 
-
 @login_required(login_url="signup")
 def get_packages(request):
     package_type_id = request.GET.get('package_type_id')
@@ -99,3 +99,32 @@ def get_packages(request):
         return JsonResponse({'packages': data}, safe=False)
     return JsonResponse({'error': 'Invalid Package Type ID'}, status=400)
 
+@csrf_exempt
+def save_attendance(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            attendance = data.get('attendance', [])
+            for record in attendance:
+                member_id = record.get('memberId')
+                attended = record.get('attended')
+                if attended:
+                    try:
+                        registration = Registration.objects.get(id=member_id)
+                        if registration.classes_left > 0:
+                            registration.classes_left -= 1
+                            registration.classes_attended += 1
+                            registration._force_manual_update = True
+                            registration.save()
+                            print(f"Updated Registration: {registration.client.name}, "
+                                  f"Classes Left: {registration.classes_left}, "
+                                  f"Classes Attended: {registration.classes_attended}")
+                        else:
+                            print(f"Registration {member_id} has no classes left.")
+                    except Registration.DoesNotExist:
+                        print(f"Registration with ID {member_id} not found.")
+            return JsonResponse({'status': 'success'})
+        except Exception as e:
+            print(f"Error: {e}")
+            return JsonResponse({'status': 'error', 'message': str(e)})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})

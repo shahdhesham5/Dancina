@@ -1,6 +1,6 @@
 from django.db import models
 from calendarapp.models.event import Package, Event, PackageType
-from django.core.validators import RegexValidator, MaxValueValidator, MinValueValidator
+from django.core.validators import RegexValidator
 
 class Client(models.Model):
     name = models.CharField(max_length=100)
@@ -52,6 +52,8 @@ class Registration(models.Model):
         total_price = self.package.get_price(self.client.is_member)
         self.classes_left = self.package.number_of_sessions - self.classes_attended
         self.price_left = total_price - self.price_paid
+        if not hasattr(self, '_force_manual_update'):
+            self.classes_left = self.package.number_of_sessions - self.classes_attended
         super().save(*args, **kwargs)
 
     def __str__(self):

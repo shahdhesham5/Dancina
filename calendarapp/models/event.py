@@ -38,8 +38,6 @@ class Package(models.Model):
     def get_price(self, is_member):
         return self.member_price if is_member else self.non_member_price
 
-
-
 class EventManager(models.Manager):
     """ Event manager """
 
@@ -51,9 +49,9 @@ class EventManager(models.Manager):
         running_events = Event.objects.filter(
             is_active=True,
             is_deleted=False,
-            to_time__gte=datetime.now(),  # Use the correct field here
-            from_time__lte=datetime.now() # Use from_time for start time
-        ).order_by("from_time")  # Order by the start time
+            to_time__gte=datetime.now(), 
+            from_time__lte=datetime.now() 
+        ).order_by("from_time") 
         return running_events
 
     # def get_completed_events(self):
@@ -71,30 +69,6 @@ class EventManager(models.Manager):
     #         start_time__gt=datetime.now().date(),
     #     )
     #     return upcoming_events
-
-
-# class Event(EventAbstract):
-#     """ Event model """
-
-#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="events")
-#     studio_location = models.ForeignKey(StudioLocation, on_delete=models.CASCADE, related_name="events", null=True)
-#     instructor = models.ForeignKey(Instructor, on_delete=models.CASCADE, related_name="events", null=True)
-#     name = models.CharField(max_length=200, null=True)
-#     start_time = models.DateTimeField()
-#     end_time = models.DateTimeField()
-
-#     objects = EventManager()
-
-#     def __str__(self):
-#         return self.name
-
-#     def get_absolute_url(self):
-#         return reverse("calendarapp:event-detail", args=(self.id,))
-
-#     @property
-#     def get_html_url(self):
-#         url = reverse("calendarapp:event-detail", args=(self.id,))
-#         return f'<a href="{url}"> {self.name} </a>'
 
 class Event(EventAbstract):
     """Event model representing recurring classes"""

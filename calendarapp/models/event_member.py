@@ -1,6 +1,5 @@
 from django.db import models
-
-from accounts.models import User
+from clients.models import Client
 from calendarapp.models import Event, EventAbstract
 
 
@@ -9,7 +8,7 @@ class EventMember(EventAbstract):
 
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="events")
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="event_members"
+        Client, on_delete=models.CASCADE, related_name="event_members"
     )
 
     class Meta:

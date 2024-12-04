@@ -96,6 +96,9 @@ class CalendarViewNew(LoginRequiredMixin, generic.View):
                 while current_date <= end_date:
                     if current_date.weekday() == day_mapping[day]:
                         # Add the event for this date
+                        filtered_registrations = event.registrations.filter(classes_left__gt=0)
+                        # members = event.registrations.values_list('client__name', flat=True)
+                        members = list(filtered_registrations.values('id', 'client__name', 'classes_left', 'classes_attended'))
                         event_list.append({
                             "id": event.id,
                             "title": event.name,
@@ -104,6 +107,7 @@ class CalendarViewNew(LoginRequiredMixin, generic.View):
                             "days":event.days,
                             "start": f"{current_date.strftime('%Y-%m-%d')}T{event.from_time.strftime('%H:%M:%S')}",
                             "end": f"{current_date.strftime('%Y-%m-%d')}T{event.to_time.strftime('%H:%M:%S')}",
+                            "members": members, 
                         })
                     # Increment the date
                     current_date += timedelta(days=1)
