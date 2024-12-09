@@ -1,59 +1,16 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect
 from django.views import generic
-from django.utils.safestring import mark_safe
 from datetime import timedelta, datetime, date
 import calendar
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-
-from calendarapp.models import EventMember, Event
-from calendarapp.utils import Calendar
-from calendarapp.forms import EventForm, AddMemberForm
+from calendarapp.models import  Event
+from calendarapp.forms import EventForm
 import json
-
-
 from clients.models import Client, Registration
 from calendarapp.models.event import Instructor
-
-class EventEdit(generic.UpdateView):
-    model = Event
-    fields = ["title", "description", "start_time", "end_time"]
-    template_name = "event.html"
-
-
-@login_required(login_url="signup")
-def event_details(request, event_id):
-    event = Event.objects.get(id=event_id)
-    eventmember = EventMember.objects.filter(event=event)
-    context = {"event": event, "eventmember": eventmember}
-    return render(request, "event-details.html", context)
-
-
-def add_eventmember(request, event_id):
-    forms = AddMemberForm()
-    if request.method == "POST":
-        forms = AddMemberForm(request.POST)
-        if forms.is_valid():
-            member = EventMember.objects.filter(event=event_id)
-            event = Event.objects.get(id=event_id)
-            if member.count() <= 9:
-                user = forms.cleaned_data["user"]
-                EventMember.objects.create(event=event, user=user)
-                return redirect("calendarapp:calendar")
-            else:
-                print("--------------User limit exceed!-----------------")
-    context = {"form": forms}
-    return render(request, "add_member.html", context)
-
-
-class EventMemberDeleteView(generic.DeleteView):
-    model = EventMember
-    template_name = "event_delete.html"
-    success_url = reverse_lazy("calendarapp:calendar")
 
 class CalendarViewNew(LoginRequiredMixin, generic.View):
     login_url = "accounts:signin"
@@ -135,7 +92,6 @@ class CalendarViewNew(LoginRequiredMixin, generic.View):
         return render(request, self.template_name, context)
 
 
-
 def delete_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     if request.method == 'POST':
@@ -143,6 +99,7 @@ def delete_event(request, event_id):
         return JsonResponse({'message': 'Event sucess delete.'})
     else:
         return JsonResponse({'message': 'Error!'}, status=400)
+
 
 def next_week(request, event_id):
     event = get_object_or_404(Event, id=event_id)

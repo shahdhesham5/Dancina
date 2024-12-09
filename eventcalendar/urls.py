@@ -17,11 +17,11 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.urls import path, include
 from .settings import  STATIC_URL, STATIC_ROOT, MEDIA_URL, MEDIA_ROOT
-from .views import DashboardView
+from django.views.generic.base import RedirectView  
 
 
 urlpatterns =( [
-    path("", DashboardView.as_view(), name="dashboard"),
+    path("", RedirectView.as_view(pattern_name="calendarapp:calendar", permanent=False), name="root_redirect"),
     path("admin/", admin.site.urls),
     path("accounts/", include("accounts.urls")),
     path("", include("calendarapp.urls")),

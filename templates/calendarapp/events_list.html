@@ -6,7 +6,6 @@
 {% block breadcrumb %}
     <div>
         <h1><i class="fa fa-star"></i> Classes</h1>
-        <p>Classes List</p>
     </div>
 
 {% endblock breadcrumb %}
@@ -23,7 +22,6 @@
                                 <table class="table table-hover table-bordered dataTable no-footer" id="sampleTable" role="grid" aria-describedby="sampleTable_info">
                                     <thead>
                                         <tr role="row">
-                                            <th class="sorting_asc" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 261.641px;">SL</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Event Name</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Event Location</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Event Instructor</th>
@@ -35,7 +33,6 @@
                                     <tbody>
                                         {% for event in object_list %}
                                             <tr role="row" class="odd">
-                                                <td class="sorting_1">{{ forloop.counter }}</td>
                                                 <td>{{ event.name }}</td>
                                                 <td>{{ event.studio_location }}</td>
                                                 <td>{{ event.instructor }}</td>

@@ -27,10 +27,10 @@
                 <li class="dropdown">
                     <a class="app-nav__item" href="#" data-toggle="dropdown" aria-label="Open Profile Menu"><i class="fa fa-user fa-lg"></i></a>
                     <ul class="dropdown-menu settings-menu dropdown-menu-right">
-                        <!-- <li>
-                            <a class="dropdown-item" href="#"><i class="fa fa-cog fa-lg"></i> Settings</a>
-                        </li>
                         <li>
+                            <a class="dropdown-item" href="{% url 'clientsapp:transaction_settings' %}"><i class="fa fa-cog fa-lg"></i> Settings</a>
+                        </li>
+                        <!-- <li>
                             <a class="dropdown-item" href="#"><i class="fa fa-user fa-lg"></i> Profile</a>
                         </li> -->
                         <li>
@@ -53,29 +53,11 @@
                 </div>
             </div>
             <ul class="app-menu">
-                <!-- <li>
-                    <a class="app-menu__item" href="{% url 'dashboard' %}"><i class="app-menu__icon fa fa-dashboard"></i><span class="app-menu__label">Dashboard</span></a>
-                </li> -->
+          
                 <li>
                     <a class="app-menu__item" href="{% url 'calendarapp:calendar' %}"><i class="app-menu__icon fa-regular fa-calendar-days"></i><span class="app-menu__label">Calendar</span></a>
                 </li>
-                <!-- <li class="treeview">
-                    <a class="app-menu__item" href="#" data-toggle="treeview"><i class="app-menu__icon fa fa-star"></i><span class="app-menu__label">Classes</span><i class="treeview-indicator fa fa-angle-right"></i></a>
-                    <ul class="treeview-menu">
-                        <li>
-                            <a class="treeview-item" href="{% url 'calendarapp:all_events' %}"><i class="icon fa fa-circle-o"></i> All</a>
-                        </li>
-                        <li>
-                            <a class="treeview-item" href="{% url 'calendarapp:running_events' %}"><i class="icon fa fa-circle"></i> Running</a>
-                        </li>
-                        <li>
-                            <a class="treeview-item" href="{% url 'calendarapp:upcoming_events' %}"><i class="icon fa fa-circle"></i> Upcoming</a>
-                        </li>
-                        <li>
-                            <a class="treeview-item" href="{% url 'calendarapp:completed_events' %}"><i class="icon fa fa-circle"></i> Completed</a>
-                        </li>
-                    </ul>
-                </li>  -->
+               
                 <li>
                     <a class="app-menu__item" href="{% url 'calendarapp:all_events' %}"><i class="app-menu__icon fa fa-star"></i><span class="app-menu__label">Classes</span></a>
                 </li>
@@ -95,13 +77,13 @@
                     <a class="app-menu__item" href="{% url 'clientsapp:registrations' %}"><i class="app-menu__icon fa fa-edit"></i><span class="app-menu__label">Registrations</span></a>
                 </li>
                 <li>
-                    <a class="app-menu__item" href="{% url 'clientsapp:clients' %}"><i class="app-menu__icon fa fa-exchange-alt"></i><span class="app-menu__label">Transactions</span></a>
+                    <a class="app-menu__item" href="{% url 'clientsapp:transactions' %}"><i class="app-menu__icon fa fa-exchange-alt"></i><span class="app-menu__label">Transactions</span></a>
                 </li>
                 <li>
-                    <a class="app-menu__item" href="{% url 'clientsapp:clients' %}"><i class="app-menu__icon fa fa-money-bill-wave"></i><span class="app-menu__label">Expenses</span></a>
+                    <a class="app-menu__item" href="#"><i class="app-menu__icon fa fa-money-bill-wave"></i><span class="app-menu__label">Expenses</span></a>
                 </li>
                 <li>
-                    <a class="app-menu__item" href="{% url 'clientsapp:clients' %}"><i class="app-menu__icon fa fa-calendar-day"></i><span class="app-menu__label">Expenses Per Day</span></a>
+                    <a class="app-menu__item" href="#"><i class="app-menu__icon fa fa-calendar-day"></i><span class="app-menu__label">Expenses Per Day</span></a>
                 </li>
             </ul>
         </aside>

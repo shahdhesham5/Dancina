@@ -1,7 +1,7 @@
 from django import forms
-from .models import Client, Registration
+from .models import Client, Registration, Transaction, TransactionSettings
+from django.db.models import Max 
 from calendarapp.models.event import Package
-
 
 class ClientForm(forms.ModelForm):
     class Meta:
@@ -56,3 +56,37 @@ class RegistrationStep2Form(forms.ModelForm):
         widgets = {
             'price_paid': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+
+
+class TransactionForm(forms.ModelForm):
+    registration = forms.ModelChoiceField(
+        queryset=Registration.objects.filter(price_left__gt=0),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=True
+    )
+
+    class Meta:
+        model = Transaction
+        fields = ['value_paid', 'registration']
+        widgets = {
+            'value_paid': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+
+class TransactionSettingsForm(forms.ModelForm):
+    class Meta:
+        model = TransactionSettings
+        fields = ['starting_receipt_number']
+        widgets = {
+            'starting_receipt_number': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+    def clean_starting_receipt_number(self):
+        starting_receipt_number = self.cleaned_data.get('starting_receipt_number')
+        highest_receipt = Transaction.objects.aggregate(Max('receipt_number'))['receipt_number__max']
+
+        if highest_receipt is not None and starting_receipt_number <= highest_receipt:
+            raise forms.ValidationError(
+                f"Starting receipt number must be higher than the current maximum receipt number ({highest_receipt})."
+            )
+        return starting_receipt_number

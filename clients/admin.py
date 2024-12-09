@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Client, Registration
+from .models import Client, Registration, Transaction
 
 
 @admin.register(Client)
@@ -13,7 +13,6 @@ class ClientAdmin(admin.ModelAdmin):
         }),
     )
 
-
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
     list_display = ('client', 'class_obj', 'package_type', 'payment_type', 'payment_method', 'price_paid', 'price_left')
@@ -24,3 +23,8 @@ class RegistrationAdmin(admin.ModelAdmin):
             'fields': ('client', 'class_obj', 'package_type', 'package', 'payment_type', 'payment_method', 'price_paid', 'price_left', 'classes_attended', 'classes_left')
         }),
     )
+
+@admin.register(Transaction)
+class TransactionAdmin(admin.ModelAdmin):
+    list_display = ['client', 'value_paid', 'date', 'receipt_number']
+    readonly_fields = ['receipt_number', 'date']

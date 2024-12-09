@@ -1,13 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from clients.models import Client, Registration
+from clients.models import Client, Registration, Transaction, TransactionSettings
 from calendarapp.models import Event
 from calendarapp.models.event import Package, PackageType
-from clients.forms import ClientForm, RegistrationStep1Form, RegistrationStep2Form
+from clients.forms import ClientForm, RegistrationStep1Form, RegistrationStep2Form, TransactionForm, TransactionSettingsForm
 from django.views.decorators.csrf import csrf_exempt
 import json
-
 
 @login_required(login_url="signup")
 def get_clients(request):
@@ -100,6 +99,7 @@ def get_packages(request):
     return JsonResponse({'error': 'Invalid Package Type ID'}, status=400)
 
 @csrf_exempt
+@login_required(login_url="signup")
 def save_attendance(request):
     if request.method == 'POST':
         try:
@@ -128,3 +128,72 @@ def save_attendance(request):
             print(f"Error: {e}")
             return JsonResponse({'status': 'error', 'message': str(e)})
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+@login_required(login_url="signup")
+def get_transactions(request):
+    transactions_list = Transaction.objects.all()
+    context = {"transactions_list":transactions_list}
+    return render(request, 'transactions.html', context)
+
+@login_required
+def update_transaction_settings(request):
+    settings = TransactionSettings.objects.first()
+    if not settings:
+        settings = TransactionSettings.objects.create(starting_receipt_number=1)
+
+    if request.method == 'POST':
+        form = TransactionSettingsForm(request.POST, instance=settings)
+        if form.is_valid():
+            form.save()
+            return redirect("calendarapp:calendar")
+    else:
+        form = TransactionSettingsForm(instance=settings)
+
+    return render(request, 'settings.html', {'form': form})
+
+@login_required(login_url="signup")
+def add_transaction(request):
+    if request.method == 'POST':
+        form = TransactionForm(request.POST)
+        registration_id = request.POST.get('registration')
+        if form.is_valid() and registration_id:
+            transaction = form.save(commit=False)
+
+            # Fetch the specific registration
+            registration = Registration.objects.get(id=registration_id)
+            transaction.client = registration.client  # Link the transaction to the client
+            transaction.save()
+
+            # Update price_paid and price_left for the selected registration
+            registration.price_paid += transaction.value_paid
+            registration.price_left -= transaction.value_paid
+            registration.save(update_fields=['price_paid', 'price_left'])
+
+            return JsonResponse({
+                'success': True,
+                'new_price_left': registration.price_left,
+                'new_price_paid': registration.price_paid
+            })
+        else:
+            errors = {field: form.errors.get(field) for field in form.fields}
+            return JsonResponse({'success': False, 'errors': errors})
+
+
+@login_required(login_url="signup")
+def get_clients_for_transactionForm(request):
+    # Fetch all registrations where price_left > 0
+    registrations = Registration.objects.filter(price_left__gt=0).select_related('client', 'class_obj')
+
+    # Structure the data to include client, class, and price_left details
+    clients_with_registrations = [
+        {
+            'client_id': reg.client.id,
+            'registration_id': reg.id,
+            'client_name': reg.client.name,
+            'class_name': reg.class_obj.name,
+            'price_left': reg.price_left
+        }
+        for reg in registrations
+    ]
+
+    return JsonResponse(clients_with_registrations, safe=False)

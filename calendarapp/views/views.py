@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from itertools import groupby
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from calendarapp.forms import AddInstructorForm , AddStudioForm, PackageForm
+from calendarapp.forms import AddInstructorForm , AddStudioForm
 from calendarapp.models.event import Instructor, StudioLocation, Package, PackageType
 
 @login_required(login_url="signup")

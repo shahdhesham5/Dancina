@@ -1,0 +1,248 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+  <div>
+      <h1><i class="fa fa-exchange-alt"></i> Transactions</h1>
+  </div>
+  <ul class="app-breadcrumb breadcrumb">
+      <button id="add-Transaction" type="button" class="btn btn-primary">Add New Transaction</button>
+  </ul>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="tile">
+            <div class="tile-body">
+                <div class="table-responsive">
+                    <div id="sampleTable_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4 no-footer">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table class="table table-hover table-bordered dataTable no-footer" id="sampleTable" role="grid" aria-describedby="sampleTable_info">
+                                    <thead>
+                                        <tr role="row">
+                                            <!-- <th class="sorting_asc" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 261.641px;">SL</th> -->
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Receipt</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Client's Name</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Value Paid</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for trans in transactions_list %}
+                                            <tr role="row" class="odd">
+                                                <!-- <td class="sorting_1">{{ forloop.counter }}</td> -->
+                                                <td>{{ trans.receipt_number }}</td>
+                                                <td>{{ trans.client }}</td>
+                                                <td>{{ trans.value_paid }}</td>
+                                                <td>{{ trans.date }}</td>
+                                                
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal to add Transaction -->
+    <div class="modal fade" id="TransactionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Transaction</h5>
+                    <button id="modalClose1" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="transactionForm" method="post">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="client">Client:</label>
+                            <!-- <select id="id_client" name="client" class="form-control">
+                                <option value="">Select a client</option>
+                            </select> -->
+                            <!-- <span class="text-danger" id="client-error"></span> -->
+                            <select id="id_registration" name="registration" class="form-control">
+                                <option value="" selected disabled>Select a client</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="valuePaid" class="col-form-label">Value Paid:</label>
+                            <input type="number" id="id_value_paid" name="value_paid" class="form-control" placeholder="Enter Value Paid">
+                            <span class="text-danger" id="valuePaid-error"></span>
+                        </div>
+                                              
+                    </div>
+                    <div class="modal-footer">
+                        <button id="modalClose" type="button" class="btn btn-danger">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block extrascripts %}
+<script type="text/javascript" src="{% static 'js/plugins/jquery.dataTables.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/plugins/dataTables.bootstrap.min.js' %}"></script>
+<script type="text/javascript">$('#sampleTable').DataTable();</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById("add-Transaction").addEventListener("click", function() {
+            const registrationDropdown = document.getElementById("id_registration");
+            registrationDropdown.innerHTML = "<option value='' selected disabled>Loading...</option>";
+
+            fetch("{% url 'clientsapp:get_clients' %}")
+                .then(response => response.json())
+                .then(data => {
+                    registrationDropdown.innerHTML = "<option value='' selected disabled>Select a client and registration</option>";
+                    if (data.length === 0) {
+                        registrationDropdown.innerHTML = "<option value=''>No eligible clients available</option>";
+                    } else {
+                        data.forEach(registration => {
+                            const option = document.createElement("option");
+                            option.value = registration.registration_id; // Use registration_id as the value
+                            option.textContent = `${registration.client_name} (Total Price Left: ${registration.price_left} for ${registration.class_name})`;
+                            registrationDropdown.appendChild(option);
+                        });
+                    }
+                    $('#TransactionModal').modal('show');
+                })
+                .catch(error => console.error("Error loading registrations:", error));
+        });
+
+        // document.getElementById("add-Transaction").addEventListener("click", function() {
+        // const clientDropdown = document.getElementById("id_client"); // Correct ID
+        // if (!clientDropdown) {
+        //     console.error("Dropdown element not found");
+        //     return;
+        // }
+
+        // fetch("{% url 'clientsapp:get_clients' %}")
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         clientDropdown.innerHTML = "<option value='' selected disabled>Select a client</option>"; // Default option
+        //         if (data.length === 0) {
+        //             clientDropdown.innerHTML = "<option value=''>No clients available</option>";
+        //         } else {
+        //             data.forEach(client => {
+        //                 const option = document.createElement("option");
+        //                 option.value = client.id;
+        //                 option.textContent = `${client.name} (Total Price Left: ${client.total_price_left})`;
+        //                 clientDropdown.appendChild(option);
+        //             });
+        //         }
+        //         $('#TransactionModal').modal('show');
+        //     })
+        //     .catch(error => console.error("Error loading clients:", error));
+        //     });
+
+
+ 
+     const transactionForm = document.querySelector('#transactionForm');
+    //  transactionForm.addEventListener('submit', function(event) {
+    //      event.preventDefault(); // Prevent traditional form submission
+ 
+    //      const formData = new FormData(transactionForm);
+    //      console.log([...formData]);
+    //      fetch("{% url 'clientsapp:add_transaction' %}", { 
+    //          method: "POST",
+    //          headers: {
+    //              "X-Requested-With": "XMLHttpRequest",
+    //              "X-CSRFToken": formData.get('csrfmiddlewaretoken')
+    //          },
+    //          body: formData
+    //      })
+    //      .then(response => response.json())
+    //      .then(data => {
+    //          console.log(data.errors);  // Log errors to the console
+    //          if (data.success) {
+    //              alert(data.message);
+    //              $('#TransactionModal').modal('hide');
+    //              transactionForm.reset();
+    //              location.replace("{% url 'clientsapp:transactions' %}");
+    //          } else {
+    //              // Reset all error messages
+    //              document.querySelectorAll('.text-danger').forEach(function(errorSpan) {
+    //                  errorSpan.textContent = '';
+    //              });
+ 
+    //              // Display errors from the response
+    //              const errors = data.errors;
+    //              Object.keys(errors).forEach(field => {
+    //                  const errorElement = document.querySelector(`#${field}-error`);
+    //                  if (errorElement && errors[field] && errors[field].length > 0) {
+    //                      errorElement.textContent = errors[field].join(', ');
+    //                  }
+    //              });
+    //          }
+    //      })
+ 
+    //      .catch(error => console.error("Error:", error));
+    //  });
+    transactionForm.addEventListener("submit", function(event) {
+        event.preventDefault();
+
+        const formData = new FormData(transactionForm);
+        fetch("{% url 'clientsapp:add_transaction' %}", {
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": formData.get("csrfmiddlewaretoken")
+            },
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the dropdown with the new price_left value
+                    const selectedClient = document.querySelector(`#id_client option[value='${formData.get("client")}']`);
+                    if (selectedClient) {
+                        const newPriceLeft = data.new_price_left;
+                        const clientName = selectedClient.textContent.split(" (")[0]; // Extract client name
+                        selectedClient.textContent = `${clientName} (Total Price Left: ${newPriceLeft})`;
+                    }
+
+                    alert("Transaction added successfully!");
+                    $('#TransactionModal').modal('hide');
+                    transactionForm.reset();
+                    location.replace("{% url 'clientsapp:transactions' %}");
+
+                } else {
+                    // Reset error messages
+                    document.querySelectorAll(".text-danger").forEach(errorSpan => {
+                        errorSpan.textContent = "";
+                    });
+
+                    // Show validation errors
+                    Object.keys(data.errors).forEach(field => {
+                        const errorElement = document.querySelector(`#${field}-error`);
+                        if (errorElement) {
+                            errorElement.textContent = data.errors[field].join(", ");
+                        }
+                    });
+                }
+            })
+            .catch(error => console.error("Error:", error));
+    });
+
+     document.getElementById("modalClose").addEventListener("click", function() {
+         $('#TransactionModal').modal('hide');
+     });
+ 
+     document.getElementById("modalClose1").addEventListener("click", function() {
+         $('#TransactionModal').modal('hide');
+     });
+ });
+ </script>
+{% endblock extrascripts %}

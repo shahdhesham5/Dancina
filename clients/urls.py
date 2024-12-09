@@ -11,4 +11,9 @@ urlpatterns = [
     path('registrations/step2/', views.registration_step2, name='registration_step2'),
     path('get-packages/', views.get_packages, name="get-packages"),
     path('attendance/', views.save_attendance, name="save_attendance"),
+    path('transaction-settings/',views.update_transaction_settings,name='transaction_settings'),
+    path('transactions/',views.get_transactions,name='transactions'),
+    path('add-transaction/',views.add_transaction,name='add_transaction'),
+    path('get_clients/',views.get_clients_for_transactionForm,name='get_clients'),
+    
 ]
