@@ -23,17 +23,18 @@ class ClientForm(forms.ModelForm):
             'is_member': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
+
 class RegistrationStep1Form(forms.ModelForm):
     class Meta:
         model = Registration
-        fields = ['client', 'class_obj', 'package_type', 'package', 'payment_type', 'payment_method']
+        fields = ['client', 'class_obj', 'package_type', 'package', 'payment_type']
         widgets = {
             'client': forms.Select(attrs={'class': 'form-control'}),
             'class_obj': forms.Select(attrs={'class': 'form-control'}),
             'package_type': forms.Select(attrs={'class': 'form-control'}),
             'package': forms.Select(attrs={'class': 'form-control'}),
             'payment_type': forms.Select(attrs={'class': 'form-control'}),
-            'payment_method': forms.Select(attrs={'class': 'form-control'}),
+            
         }
 
     def __init__(self, *args, **kwargs):
@@ -49,13 +50,17 @@ class RegistrationStep1Form(forms.ModelForm):
         elif self.instance.pk:
             self.fields['package'].queryset = self.instance.package_type.package_set.all()
 
-class RegistrationStep2Form(forms.ModelForm):
-    class Meta:
-        model = Registration
-        fields = ['price_paid']
-        widgets = {
-            'price_paid': forms.NumberInput(attrs={'class': 'form-control'}),
-        }
+
+class RegistrationStep2Form(forms.Form):
+    price_paid = forms.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+    payment_method = forms.ChoiceField(
+        choices=Transaction.PAYMENT_METHOD_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
 
 class TransactionForm(forms.ModelForm):
@@ -67,9 +72,10 @@ class TransactionForm(forms.ModelForm):
 
     class Meta:
         model = Transaction
-        fields = ['value_paid', 'registration']
+        fields = ['value_paid', 'registration', 'payment_method']
         widgets = {
             'value_paid': forms.NumberInput(attrs={'class': 'form-control'}),
+            'payment_method': forms.Select(attrs={'class': 'form-control'}),
         }
 
 

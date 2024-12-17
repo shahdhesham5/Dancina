@@ -27,6 +27,7 @@
                                                 <th>Number of Sessions</th>
                                                 <th>Member Price</th>
                                                 <th>Non-Member Price</th>
+                                                <th>Duration</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -35,6 +36,7 @@
                                                     <td>{{ package.number_of_sessions }}</td>
                                                     <td>{{ package.member_price }} LE</td>
                                                     <td>{{ package.non_member_price }} LE</td>
+                                                    <td>{{ package.duration_in_days }}</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>
@@ -102,6 +104,10 @@
                             <label for="non_member_price">Non-Member Price:</label>
                             <input type="number" id="non_member_price" name="non_member_price" class="form-control" min="0" step="0.01" required>
                         </div>
+                        <!-- <div class="form-group">
+                            <label for="duration">Duration:</label>
+                            <input type="number" id="duration" name="duration" class="form-control" min="0" step="0.01">
+                        </div> -->
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" id="backToPhase1">Back</button>
@@ -169,6 +175,7 @@
             formData.append('number_of_sessions', document.getElementById('number_of_sessions').value);
             formData.append('member_price', document.getElementById('member_price').value);
             formData.append('non_member_price', document.getElementById('non_member_price').value);
+            // formData.append('duration', document.getElementById('duration').value);
 
             fetch("{% url 'calendarapp:add_package' %}", {
                 method: 'POST',

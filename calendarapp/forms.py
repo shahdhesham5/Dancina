@@ -21,13 +21,16 @@ class EventForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ["name", "studio_location", "instructor", "days", "from_time", "to_time"]
+        fields = ["name", "studio_location", "instructor","is_private", "days", "from_time", "to_time", "start_duration", "end_duration"]
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter event name"}),
             "studio_location": forms.Select(attrs={"class": "form-control"}),
             "instructor": forms.Select(attrs={"class": "form-control"}),
+            'is_private': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             "from_time": forms.TimeInput(attrs={"type": "time", "class": "form-control"}),
             "to_time": forms.TimeInput(attrs={"type": "time", "class": "form-control"}),
+            "start_duration": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "end_duration": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
         }
 
 class AddMemberForm(forms.ModelForm):
@@ -74,7 +77,7 @@ class AddInstructorForm(forms.ModelForm):
 class AddStudioForm(forms.ModelForm):
     class Meta:
         model = StudioLocation
-        fields = ["name","address"]
+        fields = ["name","address","share_percentage"]
         
 class PackageForm(forms.ModelForm):
     class Meta:

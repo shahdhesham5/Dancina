@@ -4,10 +4,12 @@ from django.urls import reverse
 from django.core.validators import MinValueValidator, MaxValueValidator
 from calendarapp.models import EventAbstract
 from accounts.models import User
+from datetime import timedelta
 
 class StudioLocation(models.Model):
     name = models.CharField(max_length=100)
     address = models.TextField()
+    share_percentage = models.DecimalField(max_digits=5, decimal_places=2, validators=[MinValueValidator(0), MaxValueValidator(100)], null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -31,13 +33,19 @@ class Package(models.Model):
     number_of_sessions = models.PositiveIntegerField()
     member_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])      # Price for members
     non_member_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])  # Price for non-members
+    duration = models.DurationField(default=timedelta(days=30))
     
     def __str__(self):
         return f"Package of {self.number_of_sessions} classes"
     
     def get_price(self, is_member):
         return self.member_price if is_member else self.non_member_price
-
+    
+    @property
+    def duration_in_days(self):
+        """Returns the duration in days only."""
+        return f"{self.duration.days} days" 
+    
 class EventManager(models.Manager):
     """ Event manager """
 
@@ -45,14 +53,14 @@ class EventManager(models.Manager):
         events = Event.objects.filter(is_active=True, is_deleted=False)
         return events
 
-    def get_running_events(self):
-        running_events = Event.objects.filter(
-            is_active=True,
-            is_deleted=False,
-            to_time__gte=datetime.now(), 
-            from_time__lte=datetime.now() 
-        ).order_by("from_time") 
-        return running_events
+    # def get_running_events(self):
+    #     running_events = Event.objects.filter(
+    #         is_active=True,
+    #         is_deleted=False,
+    #         to_time__gte=datetime.now(), 
+    #         from_time__lte=datetime.now() 
+    #     ).order_by("from_time") 
+    #     return running_events
 
     # def get_completed_events(self):
     #     completed_events = Event.objects.filter(
@@ -84,6 +92,9 @@ class Event(EventAbstract):
     )
     from_time = models.TimeField(help_text="Start time for the class (e.g., 13:00)", null=True)
     to_time = models.TimeField(help_text="End time for the class (e.g., 14:00)", null=True)
+    
+    start_duration = models.DateField(null=True)
+    end_duration = models.DateField(null=True)
 
     objects = EventManager()
 
@@ -97,3 +108,10 @@ class Event(EventAbstract):
     def get_html_url(self):
         url = reverse("calendarapp:event-detail", args=(self.id,))
         return f'<a href="{url}"> {self.name} </a>'
+
+
+class ClassOccurrence(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="occurrences")
+    date = models.DateField()  # Specific date for this occurrence
+    def __str__(self):
+        return f"{self.event.name} on {self.date}"

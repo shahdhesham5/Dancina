@@ -1,5 +1,5 @@
 from django.db import models
-from calendarapp.models.event import Package, Event, PackageType
+from calendarapp.models.event import Package, Event, PackageType, ClassOccurrence
 from django.core.validators import RegexValidator
 import uuid
 from django.utils.timezone import now
@@ -34,27 +34,27 @@ class Registration(models.Model):
         ('TOTAL', 'Total Payment'),
         ('PARTIAL', 'Partial Payment'),
     ]
-    PAYMENT_METHOD_CHOICES = [
-        ('VISA', 'Visa'),
-        ('CASH', 'Cash'),
-        ('INSTAPAY', 'Instapay'),
-    ]
 
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="registrations")
     class_obj = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="registrations")
     package_type = models.ForeignKey(PackageType, on_delete=models.SET_NULL, null=True)
     package = models.ForeignKey(Package, on_delete=models.SET_NULL, null=True)
     payment_type = models.CharField(max_length=20, choices=PAYMENT_TYPE_CHOICES)
-    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES,null=True) 
     price_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     price_left = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     classes_attended = models.PositiveIntegerField(default=0)
     classes_left = models.PositiveIntegerField()
+    registration_date = models.DateTimeField(auto_now_add=True, null=True)
+    expiration_date = models.DateTimeField(db_index=True, null=True)
 
     def save(self, *args, **kwargs):
+        if not self.registration_date:
+            self.registration_date = now()
+            
         is_new = self.pk is None 
         # Calculate the price left based on package price and payment type
-        if is_new:  # Only calculate price_left for new instances
+        if is_new and not self.expiration_date:  # Only calculate price_left for new instances
+            self.expiration_date = self.registration_date + self.package.duration
             total_price = self.package.get_price(self.client.is_member)
             self.classes_left = self.package.number_of_sessions - self.classes_attended
             self.price_left = total_price - self.price_paid
@@ -62,14 +62,6 @@ class Registration(models.Model):
                 self.classes_left = self.package.number_of_sessions - self.classes_attended
         super().save(*args, **kwargs)
 
-        # Create a transaction record
-        if is_new and self.price_paid > 0:
-            with transaction.atomic():
-                Transaction.objects.create(
-                    client=self.client,
-                    value_paid=self.price_paid,
-                    date=now(),
-                )
 
     def __str__(self):
         return f"Registration: {self.client.name} - {self.class_obj.name}"
@@ -86,8 +78,15 @@ class TransactionSettings(models.Model):
 
     
 class Transaction(models.Model):
+    PAYMENT_METHOD_CHOICES = [
+        ('VISA', 'Visa'),
+        ('CASH', 'Cash'),
+        ('INSTAPAY', 'Instapay'),
+    ]
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="transactions")
+    registration = models.ForeignKey(Registration, on_delete=models.CASCADE, related_name="transactions_registration", null=True, blank=True)
     value_paid = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHOD_CHOICES,null=True) 
     date = models.DateTimeField(default=now)
     receipt_number = models.PositiveIntegerField(unique=True)  # Sequential and unique
 
@@ -107,16 +106,13 @@ class Transaction(models.Model):
     def __str__(self):
         return f"Transaction: {self.client.name} - Receipt {self.receipt_number}"
 
-# class Transaction(models.Model):
-#     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="transactions")
-#     value_paid = models.DecimalField(max_digits=10, decimal_places=2)
-#     date = models.DateTimeField(default=now)
-#     receipt_number = models.CharField(
-#         max_length=30,
-#         default=generate_receipt_number,
-#         unique=True,
-#         editable=False
-#     )
 
-#     def __str__(self):
-#         return f"Transaction: {self.client.name} - {self.value_paid}"
+class Attendance(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="attendances")
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendances")
+    # class_occurrence = models.ForeignKey(ClassOccurrence, on_delete=models.CASCADE, related_name="attendances")
+    attendance_date = models.DateField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Attendance: {self.client.name} for {self.event.name} "
+

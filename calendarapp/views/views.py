@@ -92,6 +92,7 @@ def add_package(request):
             number_of_sessions=request.POST['number_of_sessions'],
             member_price=request.POST['member_price'],
             non_member_price=request.POST['non_member_price']
+            # duration=request.POST['duration']
         )
         package.save()
 

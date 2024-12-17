@@ -1,12 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
-from clients.models import Client, Registration, Transaction, TransactionSettings
+from clients.models import Client, Registration, Transaction, TransactionSettings, Attendance
 from calendarapp.models import Event
-from calendarapp.models.event import Package, PackageType
+from calendarapp.models.event import Package, PackageType, ClassOccurrence
 from clients.forms import ClientForm, RegistrationStep1Form, RegistrationStep2Form, TransactionForm, TransactionSettingsForm
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.utils.timezone import now
 
 @login_required(login_url="signup")
 def get_clients(request):
@@ -51,10 +52,9 @@ def registration_step1(request):
                 'package_type': form.cleaned_data['package_type'].id,  # Store package type ID
                 'package': form.cleaned_data['package'].id,  # Store package ID
                 'payment_type': form.cleaned_data['payment_type'],  # String
-                'payment_method': form.cleaned_data['payment_method'],  # String
             }
             request.session['step1_data'] = step1_data
-            return redirect('clientsapp:registration_step2')  # Redirect to Step 2
+            return redirect('clientsapp:registration_step2')  
     else:
         form = RegistrationStep1Form()
     return render(request, 'registration_step1.html', {'form': form})
@@ -63,7 +63,7 @@ def registration_step1(request):
 def registration_step2(request):
     step1_data = request.session.get('step1_data')
     if not step1_data:
-        return redirect('clientsapp:registration_step1')  # Redirect back to Step 1 if no session data
+        return redirect('clientsapp:registration_step1') 
 
     package = get_object_or_404(Package, id=step1_data['package'])
     package_price = package.get_price(Client.objects.get(id=step1_data['client']).is_member)
@@ -72,18 +72,25 @@ def registration_step2(request):
         form = RegistrationStep2Form(request.POST)
         if form.is_valid():
             price_paid = form.cleaned_data['price_paid']
+            payment_method = form.cleaned_data['payment_method']
 
             # Create the registration object using stored IDs
-            Registration.objects.create(
+            registration = Registration.objects.create(
                 client=Client.objects.get(id=step1_data['client']),
                 class_obj=Event.objects.get(id=step1_data['class_obj']),
                 package_type=PackageType.objects.get(id=step1_data['package_type']),
                 package=package,
                 payment_type=step1_data['payment_type'],
-                payment_method=step1_data['payment_method'],
                 price_paid=price_paid,
             )
-            return redirect('clientsapp:registrations')  # Redirect to the list of registrations
+            Transaction.objects.create(
+                client=registration.client,
+                registration=registration,
+                value_paid=price_paid,
+                payment_method=payment_method,
+                date=now(),
+            )
+            return redirect('clientsapp:registrations') 
     else:
         form = RegistrationStep2Form()
 
@@ -98,6 +105,56 @@ def get_packages(request):
         return JsonResponse({'packages': data}, safe=False)
     return JsonResponse({'error': 'Invalid Package Type ID'}, status=400)
 
+
+# @login_required(login_url="signup")
+# def save_attendance(request):
+#     if request.method == 'POST':
+#         try:
+#             data = json.loads(request.body)
+#             attendance = data.get('attendance', [])
+#             for record in attendance:
+#                 member_id = record.get('memberId')
+#                 class_occurrence_id = record.get('classOccurrenceId')  # Include occurrence ID in the request
+#                 attended = record.get('attended')
+
+#                 if attended:
+#                     try:
+#                         # Fetch the registration and class occurrence
+#                         registration = Registration.objects.get(id=member_id)
+#                         class_occurrence = ClassOccurrence.objects.get(id=class_occurrence_id)
+
+#                         if registration.classes_left > 0:
+#                             # Update registration counts
+#                             registration.classes_left -= 1
+#                             registration.classes_attended += 1
+#                             registration._force_manual_update = True
+#                             registration.save()
+
+#                             # Create an attendance record
+#                             Attendance.objects.create(
+#                                 client=registration.client,
+#                                 event=registration.class_obj,
+#                                 class_occurrence=class_occurrence
+#                             )
+#                             print(f"Attendance saved for {registration.client.name} "
+#                                   f"for class {registration.class_obj.name} on {class_occurrence.date}")
+#                         else:
+#                             print(f"Registration {member_id} has no classes left.")
+#                     except (Registration.DoesNotExist, ClassOccurrence.DoesNotExist) as e:
+#                         print(f"Error: {e}")
+#             return JsonResponse({'status': 'success'})
+#         except Exception as e:
+#             print(f"Error: {e}")
+#             return JsonResponse({'status': 'error', 'message': str(e)})
+#     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+@login_required(login_url="signup")
+def get_attendances(request):
+    attendances_list = Attendance.objects.all()
+    context = {"attendances_list":attendances_list}
+    return render(request, 'attendance.html', context)
+
 @csrf_exempt
 @login_required(login_url="signup")
 def save_attendance(request):
@@ -105,17 +162,28 @@ def save_attendance(request):
         try:
             data = json.loads(request.body)
             attendance = data.get('attendance', [])
+            # class_occurrence_id = record.get('classOccurrenceId')  # Include occurrence ID in the request
+            
             for record in attendance:
                 member_id = record.get('memberId')
                 attended = record.get('attended')
                 if attended:
                     try:
                         registration = Registration.objects.get(id=member_id)
+                        # class_occurrence = ClassOccurrence.objects.get(id=class_occurrence_id)
+                        
                         if registration.classes_left > 0:
                             registration.classes_left -= 1
                             registration.classes_attended += 1
                             registration._force_manual_update = True
                             registration.save()
+                            
+                        # Create an attendance record
+                            Attendance.objects.create(
+                                client=registration.client,
+                                event=registration.class_obj,
+                                # class_occurrence=class_occurrence
+                            )
                             print(f"Updated Registration: {registration.client.name}, "
                                   f"Classes Left: {registration.classes_left}, "
                                   f"Classes Attended: {registration.classes_attended}")
@@ -178,6 +246,12 @@ def add_transaction(request):
             errors = {field: form.errors.get(field) for field in form.fields}
             return JsonResponse({'success': False, 'errors': errors})
 
+def get_payment_methods(request):
+    try:
+        payment_methods = [{'value': method[0], 'label': method[1]} for method in Transaction.PAYMENT_METHOD_CHOICES]
+        return JsonResponse(payment_methods, safe=False)
+    except AttributeError:
+        return JsonResponse({'error': 'PAYMENT_METHODS is not defined'}, status=500)
 
 @login_required(login_url="signup")
 def get_clients_for_transactionForm(request):

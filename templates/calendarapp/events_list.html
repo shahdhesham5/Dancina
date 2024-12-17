@@ -7,7 +7,9 @@
     <div>
         <h1><i class="fa fa-star"></i> Classes</h1>
     </div>
-
+    <ul class="app-breadcrumb breadcrumb">
+        <button type="button" class="btn btn-primary" id="addNewClassButton">Add New Class</button>
+    </ul>
 {% endblock breadcrumb %}
 
 {% block content %}
@@ -28,6 +30,7 @@
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Days</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Start Time</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 102.141px;">End Time</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 102.141px;">Private</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -39,6 +42,7 @@
                                                 <td>{{ event.days }}</td>
                                                 <td>{{ event.from_time }}</td>
                                                 <td>{{ event.to_time }}</td>
+                                                <td>{{ event.is_private }}</td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>
@@ -50,7 +54,62 @@
             </div>
         </div>
     </div>
-
+    <!-- class modal -->
+    <div class="modal fade show" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Class</h5>
+                    <button id="modalClose1" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post" action="{% url 'calendarapp:all_events' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Class Name:</label>
+                            {{ form.name }}
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Location:</label>
+                            {{ form.studio_location }}
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Instructor:</label>
+                            {{ form.instructor }}
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Private:</label>
+                            {{ form.is_private }}
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Days:</label>
+                            {{ form.days }}
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label"> From:</label>
+                            {{ form.from_time }}
+                        </div><div class="form-group">
+                            <label for="message-text" class="col-form-label"> To:</label>
+                            {{ form.to_time }}
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label"> Start Duration:</label>
+                            {{ form.start_duration }}
+                        </div><div class="form-group">
+                            <label for="message-text" class="col-form-label"> End Duration:</label>
+                            {{ form.end_duration }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="modalClose2" type="button" class="btn btn-danger">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock content %}
 
@@ -58,4 +117,24 @@
     <script type="text/javascript" src="{% static 'js/plugins/jquery.dataTables.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/plugins/dataTables.bootstrap.min.js' %}"></script>
     <script type="text/javascript">$('#sampleTable').DataTable();</script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalForm = document.querySelector("#eventModal");
+        const closeBtn1 = document.getElementById('modalClose1');
+        const closeBtn2 = document.getElementById('modalClose2');
+
+        document.getElementById('addNewClassButton').addEventListener('click', function () {
+            modalForm.style.display = 'block';
+        });
+
+
+    closeBtn1.addEventListener('click',()=>{
+        eventModal.style.display = 'none';
+    });
+    closeBtn2.addEventListener('click',()=>{
+        eventModal.style.display = 'none';
+    });
+
+    });
+    </script>
 {% endblock extrascripts %}

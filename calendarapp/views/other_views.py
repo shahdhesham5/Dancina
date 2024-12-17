@@ -1,8 +1,7 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from django.views import generic
 from datetime import timedelta, datetime, date
 import calendar
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -10,64 +9,60 @@ from calendarapp.models import  Event
 from calendarapp.forms import EventForm
 import json
 from clients.models import Client, Registration
-from calendarapp.models.event import Instructor
+from calendarapp.models.event import Instructor, ClassOccurrence
+from django.utils.timezone import now
+import random
+
 
 class CalendarViewNew(LoginRequiredMixin, generic.View):
     login_url = "accounts:signin"
     template_name = "calendarapp/calendar.html"
     form_class = EventForm
-
+  
     def get(self, request, *args, **kwargs):
+        
+        def generate_bright_color():
+            """Generate a random bright color in hex format."""
+            r = random.randint(150, 255)  # Red component (bright range)
+            g = random.randint(150, 255)  # Green component (bright range)
+            b = random.randint(150, 255)  # Blue component (bright range)
+            return f"#{r:02x}{g:02x}{b:02x}"  # Convert to hex color code
+        
         forms = self.form_class()
-        # statistical numbers
-         
+        
         clients = Client.objects.all()
         registrations = Registration.objects.all()
         instructors = Instructor.objects.all()
         allevents = Event.objects.all()
-        events = Event.objects.get_all_events()
-        events_month = Event.objects.get_running_events()
+   
+        occurrences = ClassOccurrence.objects.all()
         event_list = []
+        event_colors = {}  # Dictionary to store static colors for each event name
 
-        # Map day names to their corresponding weekday numbers
-        day_mapping = {
-            "Sunday": 6,
-            "Monday": 0,
-            "Tuesday": 1,
-            "Wednesday": 2,
-            "Thursday": 3,
-            "Friday": 4,
-            "Saturday": 5,
-        }
+        for occurrence in occurrences:
+            event = occurrence.event
+            
+            if event.name not in event_colors:
+                # Assign a bright color to this event name
+                event_colors[event.name] = generate_bright_color()
+                
+        
+            filtered_registrations = event.registrations.filter(classes_left__gt=0, expiration_date__gte=now())
+            members = event.registrations.values_list('client__name', flat=True)
+            members = list(filtered_registrations.values('id', 'client__name', 'classes_left', 'classes_attended'))
 
-        # Define the date range to generate events for (e.g., next 4 weeks)
-        today = datetime.today()
-        end_date = today + timedelta(weeks=4)
-
-        for event in events:
-            # Convert `event.days` (e.g., "['Sunday', 'Wednesday']") to a Python list
-            days = eval(event.days)  # Ensure `event.days` is stored as a stringified list
-            for day in days:
-                # Find the next occurrence of the day within the range
-                current_date = today
-                while current_date <= end_date:
-                    if current_date.weekday() == day_mapping[day]:
-                        # Add the event for this date
-                        filtered_registrations = event.registrations.filter(classes_left__gt=0)
-                        # members = event.registrations.values_list('client__name', flat=True)
-                        members = list(filtered_registrations.values('id', 'client__name', 'classes_left', 'classes_attended'))
-                        event_list.append({
-                            "id": event.id,
-                            "title": event.name,
-                            "instructor": event.instructor.name,
-                            "location": event.studio_location.name,
-                            "days":event.days,
-                            "start": f"{current_date.strftime('%Y-%m-%d')}T{event.from_time.strftime('%H:%M:%S')}",
-                            "end": f"{current_date.strftime('%Y-%m-%d')}T{event.to_time.strftime('%H:%M:%S')}",
-                            "members": members, 
-                        })
-                    # Increment the date
-                    current_date += timedelta(days=1)
+            event_list.append({
+                "id": occurrence.id,
+                "title": event.name,
+                "instructor": event.instructor.name,
+                "location": event.studio_location.name,
+                "start": f"{occurrence.date}T{event.from_time.strftime('%H:%M:%S')}",  # Combine date and time as a string
+                "end": f"{occurrence.date}T{event.to_time.strftime('%H:%M:%S')}",      # Combine date and time as a string
+                "members": members,
+                "backgroundColor": event_colors[event.name],  # Use the bright color
+                "borderColor": event_colors[event.name],
+                "textColor": "#000000",  # Set text color to black for better contrast
+            })
 
         context = {
             "allevents": allevents.count(),
@@ -76,20 +71,19 @@ class CalendarViewNew(LoginRequiredMixin, generic.View):
             "instructors": instructors.count(),
             "form": forms,
             "events": json.dumps(event_list),  # Pass JSON to the frontend
-            "events_month": events_month,
         }
         return render(request, self.template_name, context)
-   
 
-    def post(self, request, *args, **kwargs):
-        forms = self.form_class(request.POST)
-        if forms.is_valid():
-            form = forms.save(commit=False)
-            form.user = request.user
-            form.save()
-            return redirect("calendarapp:calendar")
-        context = {"form": forms}
-        return render(request, self.template_name, context)
+    
+    # def post(self, request, *args, **kwargs):
+    #     forms = self.form_class(request.POST)
+    #     if forms.is_valid():
+    #         form = forms.save(commit=False)
+    #         form.user = request.user
+    #         form.save()
+    #         return redirect("calendarapp:calendar")
+    #     context = {"form": forms}
+    #     return render(request, self.template_name, context)
 
 
 def delete_event(request, event_id):

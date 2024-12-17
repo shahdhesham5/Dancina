@@ -21,21 +21,21 @@ urlpatterns = [
     #     name="remove_event",
     # ),
     path("all-event-list/", views.AllEventsListView.as_view(), name="all_events"),
-    path(
-        "running-event-list/",
-        views.RunningEventsListView.as_view(),
-        name="running_events",
-    ),
-    path(
-        "upcoming-event-list/",
-        views.UpcomingEventsListView.as_view(),
-        name="upcoming_events",
-    ),
-    path(
-        "completed-event-list/",
-        views.CompletedEventsListView.as_view(),
-        name="completed_events",
-    ),
+    # path(
+    #     "running-event-list/",
+    #     views.RunningEventsListView.as_view(),
+    #     name="running_events",
+    # ),
+    # path(
+    #     "upcoming-event-list/",
+    #     views.UpcomingEventsListView.as_view(),
+    #     name="upcoming_events",
+    # ),
+    # path(
+    #     "completed-event-list/",
+    #     views.CompletedEventsListView.as_view(),
+    #     name="completed_events",
+    # ),
     path("instructors/",get_instructors,name="instructors"),
     path("add_instructor/",add_instructor,name="add_instructor"),
     path("studios/",get_studios,name="studios"),

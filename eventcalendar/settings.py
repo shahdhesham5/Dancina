@@ -48,7 +48,7 @@ INSTALLED_APPS = [
     "calendarapp.apps.CalendarappConfig",
     "accounts.apps.AccountsConfig",
     'clients',
-    'fontawesomefree',
+    # 'fontawesomefree', 
 ]
 
 MIDDLEWARE = [

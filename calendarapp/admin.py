@@ -1,10 +1,10 @@
 from django.contrib import admin
-from calendarapp.models.event import StudioLocation, Instructor, PackageType, Package, Event
+from calendarapp.models.event import StudioLocation, Instructor, PackageType, Package, Event, ClassOccurrence
 from calendarapp.models.event_member import EventMember
 
 @admin.register(StudioLocation)
 class StudioLocationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'address')
+    list_display = ('name', 'address','share_percentage')
     search_fields = ('name',)
 
 
@@ -27,9 +27,14 @@ class PackageAdmin(admin.ModelAdmin):
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     model = Event
-    list_display = ["id", "name", "studio_location", "instructor", "user", "days", "from_time", "to_time", "is_active", "is_deleted"]
+    list_display = ["id", "name", "studio_location", "instructor", "user", "days", "from_time", "to_time","start_duration","end_duration", "is_private","is_active", "is_deleted"]
     list_filter = ["is_active", "is_deleted", "days"]
     search_fields = ["name"]
+
+@admin.register(ClassOccurrence)
+class ClassOccurrenceAdmin(admin.ModelAdmin):
+    model = ClassOccurrence
+    list_display = ["id", "event", "date"]
 
 
 @admin.register(EventMember)

@@ -22,17 +22,19 @@
                                 <table class="table table-hover table-bordered dataTable no-footer" id="sampleTable" role="grid" aria-describedby="sampleTable_info">
                                     <thead>
                                         <tr role="row">
-                                            <th class="sorting_asc" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 261.641px;">SL</th>
+                                            <!-- <th class="sorting_asc" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 261.641px;">SL</th> -->
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Name</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Location</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Share Percentage</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for studio in studios_list %}
                                             <tr role="row" class="odd">
-                                                <td class="sorting_1">{{ forloop.counter }}</td>
+                                                <!-- <td class="sorting_1">{{ forloop.counter }}</td> -->
                                                 <td>{{ studio.name }}</td>
                                                 <td>{{ studio.address }}</td>
+                                                <td>{{ studio.share_percentage }}</td>
                                                 
                                             </tr>
                                         {% endfor %}
@@ -67,7 +69,12 @@
                             <label for="address" class="col-form-label">Location:</label>
                             <input type="text" id="address" name="address" class="form-control" value="{{ form.address.value|default:'' }}" placeholder="Enter location">
                             <span class="text-danger" id="address-error"></span>
-                        </div>                        
+                        </div>      
+                        <div class="form-group">
+                            <label for="share_percentage" class="col-form-label">Share Percentage:</label>
+                            <input type="number" id="share_percentage" name="share_percentage" class="form-control" value="{{ form.share_percentage.value|default:'' }}" placeholder="Enter Share" step="0.01">
+                            <span class="text-danger" id="share_percentage-error"></span>
+                        </div>                   
                     </div>
                     <div class="modal-footer">
                         <button id="modalClose" type="button" class="btn btn-danger">Close</button>
