@@ -32,8 +32,8 @@ ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(",")
 
 CORS_ALLOWED_ORIGINS = [
     # "http://localhost:8000",  # This is where your frontend will be running
-    "dancina.ictcoegyptstock.com",
-    "www.dancina.ictcoegyptstock.com"
+    "https://dancina.ictcoegyptstock.com",
+    "https://www.dancina.ictcoegyptstock.com",
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
