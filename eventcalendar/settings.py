@@ -31,7 +31,9 @@ DEBUG = os.getenv('DEBUG')
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(",")
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8000",  # This is where your frontend will be running
+    # "http://localhost:8000",  # This is where your frontend will be running
+    "dancina.ictcoegyptstock.com",
+    "www.dancina.ictcoegyptstock.com"
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -83,21 +85,9 @@ TEMPLATES = [
 WSGI_APPLICATION = "eventcalendar.wsgi.application"
 
 # Load environment variables from .env file
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': os.getenv('DB_NAME'),
-#         'USER': os.getenv('DB_USER'),
-#         'PASSWORD': os.getenv('DB_PASSWORD'),
-#         'HOST': os.getenv('DB_HOST'),
-#         'PORT': os.getenv('DB_PORT'),
-#     }
-# }
-
-# Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
@@ -105,6 +95,18 @@ DATABASES = {
         'PORT': os.getenv('DB_PORT'),
     }
 }
+
+# Database
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('DB_NAME'),
+#         'USER': os.getenv('DB_USER'),
+#         'PASSWORD': os.getenv('DB_PASSWORD'),
+#         'HOST': os.getenv('DB_HOST'),
+#         'PORT': os.getenv('DB_PORT'),
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
