@@ -6,5 +6,5 @@ DB_PORT=3306
 
 # Django settings
 DEBUG=False
-ALLOWED_HOSTS= 195.35.38.155
+ALLOWED_HOSTS= dancina.ictcoegyptstock.com, www.dancina.ictcoegyptstock.com, 145.223.117.34
 
