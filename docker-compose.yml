@@ -1,18 +1,17 @@
 services:
+
   db:
-    image: mysql:8.0
+    image: postgres:13
     container_name: django_dancina_db
-    volumes:
-      - ./docker-mysql-data:/var/lib/mysql
+    ports:
+      - "5432:5432"
     env_file:
       - .env
-    ports:
-      - "3309:3306"
-    environment:
-      - MYSQL_ROOT_PASSWORD=230223  # Set this password
-      - MYSQL_DATABASE=dancina_db
-  django:
-    build: .
+    volumes:
+      - db_data:/var/lib/postgresql/data  # pesistantly store the data even when the docker is deleted or stopped
+
+  web:
+    build: .  
     container_name: django_dancina
     command: >
       sh -c "
@@ -23,15 +22,15 @@ services:
             "
     ports:
       - "8001:8000"
-    volumes:
-      - .:/eventcalendar
     env_file:
       - .env
+    volumes:
+      - .:/eventcalendar  # mount the project dir to the docker
     depends_on:
       - db
 
+volumes:
+ db_data:
 
-networks:
-  default:
-    driver: bridge
-    name: dancina_network
+
+
