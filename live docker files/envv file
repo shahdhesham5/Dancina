@@ -1,0 +1,10 @@
+DB_HOST=db
+DB_NAME=dancina_db
+DB_USER=dancina
+DB_PASSWORD=passw0rd
+DB_PORT=3306
+
+# Django settings
+DEBUG=False
+ALLOWED_HOSTS= 195.35.38.155
+
