@@ -35,14 +35,14 @@ class Migration(migrations.Migration):
                 ('price_left', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
                 ('classes_attended', models.PositiveIntegerField(default=0)),
                 ('classes_left', models.PositiveIntegerField()),
-                ('class_obj', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='registrations', to='classes.class')),
+                ('class_obj', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='registrations', to='calendarapp.event')),
                 ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='registrations', to='clients.client')),
-                ('package', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='classes.package')),
+                ('package', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='calendarapp.package')),
             ],
         ),
         migrations.AddField(
             model_name='client',
             name='classes',
-            field=models.ManyToManyField(related_name='clients', through='clients.Registration', to='classes.class'),
+            field=models.ManyToManyField(related_name='clients', through='clients.Registration', to='calendarapp.event'),
         ),
     ]
