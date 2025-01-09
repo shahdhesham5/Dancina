@@ -28,21 +28,21 @@ class Migration(migrations.Migration):
         ),
         migrations.CreateModel(
             name='Registration',
-            fields=[
+            fields=[    
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('payment_type', models.CharField(choices=[('TOTAL', 'Total Payment'), ('PARTIAL', 'Partial Payment')], max_length=20)),
                 ('price_paid', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
                 ('price_left', models.DecimalField(decimal_places=2, default=0.0, max_digits=10)),
                 ('classes_attended', models.PositiveIntegerField(default=0)),
                 ('classes_left', models.PositiveIntegerField()),
-                ('class_obj', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='registrations', to='calendarapp.event.Event')),
-                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='registrations', to='clients.client')),
-                ('package', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='calendarapp.event.Package')),
+                ('class_obj', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='registrations', to='calendarapp.Event')),
+                ('client', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='registrations', to='clients.Client')),
+                ('package', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='calendarapp.Package')),
             ],
         ),
         migrations.AddField(
             model_name='client',
             name='classes',
-            field=models.ManyToManyField(related_name='clients', through='clients.Registration', to='calendarapp.event.Event'),
+            field=models.ManyToManyField(related_name='clients', through='clients.Registration', to='calendarapp.Event'),
         ),
     ]
