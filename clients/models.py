@@ -31,7 +31,7 @@ class Client(models.Model):
 
 class Registration(models.Model):
     PAYMENT_TYPE_CHOICES = [
-        ('TOTAL', 'Total Payment'),
+        ('TOTAL', 'Full Payment'),
         ('PARTIAL', 'Partial Payment'),
     ]
 

@@ -3,10 +3,10 @@
 
 {% block breadcrumb %}
   <div>
-      <h1><i class="fa fa-users"></i> Clients </h1>
+      <h1><i class="fa fa-users"></i> Students </h1>
   </div>
   <ul class="app-breadcrumb breadcrumb">
-      <button id="add-client" type="button" class="btn btn-primary">Add New Client</button>
+      <button id="add-client" type="button" class="btn btn-primary">Add New Student</button>
   </ul>
 {% endblock breadcrumb %}
 
@@ -22,7 +22,6 @@
                                 <table class="table table-hover table-bordered dataTable no-footer" id="sampleTable" role="grid" aria-describedby="sampleTable_info">
                                     <thead>
                                         <tr role="row">
-                                            <th class="sorting_asc" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 261.641px;">SL</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Name</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Phone Number</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 102.141px;">Email</th>
@@ -34,7 +33,6 @@
                                     <tbody>
                                         {% for client in clients_list %}
                                             <tr role="row" class="odd">
-                                                <td class="sorting_1">{{ forloop.counter }}</td>
                                                 <td>{{ client.name }}</td>
                                                 <td>{{ client.phone_number }}</td>
                                                 <td>{{ client.email }}</td>
@@ -57,7 +55,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-primary">
-                    <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Client</h5>
+                    <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Student</h5>
                     <button id="modalClose1" type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -67,7 +65,7 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label for="name" class="col-form-label">Name:</label>
-                            <input type="text" id="name" name="name" class="form-control" value="{{ form.name.value|default:'' }}" placeholder="Enter clients's name">
+                            <input type="text" id="name" name="name" class="form-control" value="{{ form.name.value|default:'' }}" placeholder="Enter Student's name">
                             <span class="text-danger" id="name-error"></span>
                         </div>
                         <div class="form-group">

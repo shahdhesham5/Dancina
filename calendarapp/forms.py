@@ -23,7 +23,7 @@ class EventForm(forms.ModelForm):
         model = Event
         fields = ["name", "studio_location", "instructor","is_private", "days", "from_time", "to_time", "start_duration", "end_duration"]
         widgets = {
-            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter event name"}),
+            "name": forms.TextInput(attrs={"class": "form-control", "placeholder": "Enter Class name"}),
             "studio_location": forms.Select(attrs={"class": "form-control"}),
             "instructor": forms.Select(attrs={"class": "form-control"}),
             'is_private': forms.CheckboxInput(attrs={'class': 'form-check-input'}),

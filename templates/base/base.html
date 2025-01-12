@@ -18,7 +18,7 @@
     <body class="app sidebar-mini">
         <!-- Navbar-->
         <header class="app-header">
-            <a class="app-header__logo" href="{% url 'calendarapp:calendar' %}">Dancina Calendar</a>
+            <a class="app-header__logo" href="{% url 'calendarapp:calendar' %}">Dancina Studio</a>
             <!-- Sidebar toggle button-->
             <a class="app-sidebar__toggle" href="#" data-toggle="sidebar" aria-label="Hide Sidebar"></a>
             <!-- Navbar Right Menu-->
@@ -48,8 +48,8 @@
             <div class="app-sidebar__user">
                 <img class="app-sidebar__user-avatar" src="{% static 'images/logo.JPG' %}" alt="User Image" height="50px" width="50px"/>
                 <div>
-                    <p class="app-sidebar__user-name">Nadeen</p>
-                    <p class="app-sidebar__user-designation"> Admin</p>
+                    <p class="app-sidebar__user-name">Dancina</p>
+                    <!-- <p class="app-sidebar__user-designation"> Admin</p> -->
                 </div>
             </div>
             <ul class="app-menu">
@@ -71,7 +71,7 @@
                     <a class="app-menu__item" href="{% url 'calendarapp:studios' %}"><i class="app-menu__icon fa fa-map-marker"></i><span class="app-menu__label">Studios</span></a>
                 </li>
                 <li>
-                    <a class="app-menu__item" href="{% url 'clientsapp:clients' %}"><i class="app-menu__icon fa fa-users"></i><span class="app-menu__label">Clients</span></a>
+                    <a class="app-menu__item" href="{% url 'clientsapp:clients' %}"><i class="app-menu__icon fa fa-users"></i><span class="app-menu__label">Students</span></a>
                 </li>
                 <li>
                     <a class="app-menu__item" href="{% url 'clientsapp:registrations' %}"><i class="app-menu__icon fa fa-edit"></i><span class="app-menu__label">Registrations</span></a>

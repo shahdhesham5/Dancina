@@ -6,6 +6,7 @@ DB_PORT=5432
 POSTGRES_PASSWORD=postgres
 
 # Django settings
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+DEBUG=False
+ALLOWED_HOSTS= dancina.ictcoegyptstock.com, www.dancina.ictcoegyptstock.com, 145.223.117.34
+
 
