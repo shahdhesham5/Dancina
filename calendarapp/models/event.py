@@ -31,8 +31,8 @@ class PackageType(models.Model):
 class Package(models.Model):
     package_type = models.ForeignKey(PackageType, on_delete=models.CASCADE, related_name='package_type', null=True, blank=True)
     number_of_sessions = models.PositiveIntegerField()
-    member_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])      # Price for members
-    non_member_price = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])  # Price for non-members
+    member_price = models.IntegerField(validators=[MinValueValidator(0)])      # Price for members
+    non_member_price = models.IntegerField(validators=[MinValueValidator(0)])  # Price for non-members
     duration = models.DurationField(default=timedelta(days=30))
     
     def __str__(self):

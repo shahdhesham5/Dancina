@@ -1738,84 +1738,84 @@ pre code {
 }
 
 .table-hover .table-primary:hover {
-  background-color: #a6dbd6;
+  background-color: #fff;
 }
 
 .table-hover .table-primary:hover > td,
 .table-hover .table-primary:hover > th {
-  background-color: #a6dbd6;
+  background-color: #fff;
 }
 
 .table-secondary,
 .table-secondary > th,
 .table-secondary > td {
-  background-color: #d6d8db;
+  background-color: #fff;
 }
 
 .table-secondary th,
 .table-secondary td,
 .table-secondary thead th,
 .table-secondary tbody + tbody {
-  border-color: #b3b7bb;
+  border-color: #fff;
 }
 
 .table-hover .table-secondary:hover {
-  background-color: #c8cbcf;
+  background-color: #fff;
 }
 
 .table-hover .table-secondary:hover > td,
 .table-hover .table-secondary:hover > th {
-  background-color: #c8cbcf;
+  background-color: #fff;
 }
 
 .table-success,
 .table-success > th,
 .table-success > td {
-  background-color: #c3e6cb;
+  background-color: #fff;
 }
 
 .table-success th,
 .table-success td,
 .table-success thead th,
 .table-success tbody + tbody {
-  border-color: #8fd19e;
+  border-color: #fff;
 }
 
 .table-hover .table-success:hover {
-  background-color: #b1dfbb;
+  background-color: #fff;
 }
 
 .table-hover .table-success:hover > td,
 .table-hover .table-success:hover > th {
-  background-color: #b1dfbb;
+  background-color: #fff;
 }
 
 .table-info,
 .table-info > th,
 .table-info > td {
-  background-color: #bee5eb;
+  background-color: #fff;
 }
 
 .table-info th,
 .table-info td,
 .table-info thead th,
 .table-info tbody + tbody {
-  border-color: #86cfda;
+  border-color: #fff;
 }
 
 .table-hover .table-info:hover {
-  background-color: #abdde5;
+  background-color: #fff;
 }
 
 .table-hover .table-info:hover > td,
 .table-hover .table-info:hover > th {
-  background-color: #abdde5;
+  background-color: #fff;
 }
 
 .table-warning,
 .table-warning > th,
 .table-warning > td {
-  background-color: #ffeeba;
+  background-color: #fff;
 }
 
 .table-warning th,
@@ -2239,7 +2239,7 @@ textarea.form-control {
   font-size: 0.765625rem;
   line-height: 1.5;
   color: #FFF;
-  background-color: rgba(40, 167, 69, 0.9);
+  background-color: rgba(0, 0, 0, 0.9);
   border-radius: 0.25rem;
 }
 
@@ -2318,8 +2318,8 @@ textarea.form-control {
 }
 
 .was-validated .custom-control-input:valid:checked ~ .custom-control-label::before, .custom-control-input.is-valid:checked ~ .custom-control-label::before {
-  border-color: #34ce57;
-  background-color: #34ce57;
+  border-color: #000;
+  background-color: #000;
 }
 
 .was-validated .custom-control-input:valid:focus ~ .custom-control-label::before, .custom-control-input.is-valid:focus ~ .custom-control-label::before {
@@ -4284,7 +4284,7 @@ input[type="button"].btn-block {
 }
 
 .custom-range::-ms-thumb:active {
-  background-color: #4affee;
+  background-color: #000;
 }
 
 .custom-range::-ms-track {
@@ -5351,12 +5351,12 @@ a.badge-primary:focus, a.badge-primary.focus {
 
 .badge-secondary {
   color: #FFF;
-  background-color: #6c757d;
+  background-color: #000;
 }
 
 a.badge-secondary:hover, a.badge-secondary:focus {
   color: #FFF;
-  background-color: #545b62;
+  background-color: #000;
 }
 
 a.badge-secondary:focus, a.badge-secondary.focus {
@@ -5538,7 +5538,7 @@ a.badge-dark:focus, a.badge-dark.focus {
 
 .alert-success {
   color: #155724;
-  background-color: #d4edda;
+  background-color: #000;
   border-color: #c3e6cb;
 }
 
@@ -15159,7 +15159,7 @@ be a descendant of the grid when it is being dragged.
   width: 230px;
   overflow: auto;
   z-index: 10;
-  background-color: #222d32;
+  background-color: #343a40;
   -webkit-box-shadow: 0px 8px 17px rgba(0, 0, 0, 0.2);
           box-shadow: 0px 8px 17px rgba(0, 0, 0, 0.2);
   -webkit-transition: left 0.3s ease,
