@@ -4,11 +4,15 @@ services:
     image: postgres:13
     container_name: django_dancina_db
     ports:
-      - "5435:5432"
+      - "5432:5432"
     env_file:
       - .env
     volumes:
-      - db_data:/var/lib/postgresql/data  # pesistantly store the data even when the docker is deleted or stopped
+      - dancina_db_data:/var/lib/postgresql/data  # pesistantly store the data even when the docker is deleted or stopped
+    environment:
+      POSTGRES_DB: dancina_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
 
   web:
     build: .  
@@ -18,10 +22,10 @@ services:
              python /eventcalendar/manage.py collectstatic --noinput &&
              python /eventcalendar/manage.py makemigrations --no-input &&
              python /eventcalendar/manage.py migrate --no-input &&
-             gunicorn eventcalendar.wsgi --bind 0.0.0.0:8000 --workers 2
+             gunicorn eventcalendar.wsgi --bind 0.0.0.0:8001 --workers 2
             "
     ports:
-      - "8000:8000"
+      - "8001:8000"
     env_file:
       - .env
     volumes:
@@ -30,7 +34,9 @@ services:
       - db
 
 volumes:
- db_data:
+ dancina_db_data:
+  name: dancina_db_data
+
 
 
 

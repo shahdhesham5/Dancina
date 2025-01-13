@@ -28,7 +28,8 @@ SECRET_KEY = "i8e1s3!_(fjsiv%1pn3sb3o=s)!p*nzwh1$gp5-l&%nb!d=y_s"
 
 DEFAULT_AUTO_FIELD='django.db.models.AutoField' 
 DEBUG = os.getenv('DEBUG') 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(",")
+#ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split(",")
+ALLOWED_HOSTS = [host.strip() for host in os.environ.get("ALLOWED_HOSTS", "").split(",")]
 
 CORS_ALLOWED_ORIGINS = [
     # "http://localhost:8000",  # This is where your frontend will be running
