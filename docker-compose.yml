@@ -8,7 +8,11 @@ services:
     env_file:
       - .env
     volumes:
-      - db_data:/var/lib/postgresql/data  # pesistantly store the data even when the docker is deleted or stopped
+      - dancina_db_data:/var/lib/postgresql/data  # pesistantly store the data even when the docker is deleted or stopped
+    environment:
+      POSTGRES_DB: dancina_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
 
   web:
     build: .  
@@ -30,5 +34,6 @@ services:
       - db
 
 volumes:
- db_data:
+ dancina_db_data:
+  name: dancina_db_data
 
