@@ -8,6 +8,7 @@ from clients.forms import ClientForm, RegistrationStep1Form, RegistrationStep2Fo
 from django.views.decorators.csrf import csrf_exempt
 import json
 from django.utils.timezone import now
+from django.contrib import messages
 
 @login_required(login_url="signup")
 def get_clients(request):
@@ -35,10 +36,42 @@ def add_client(request):
     return JsonResponse({'success': False, 'message': 'Invalid method'}, status=405)
 
 @login_required(login_url="signup")
+def edit_client(request, pk):
+    client = get_object_or_404(Client, pk=pk)
+
+    if request.method == 'POST':
+        form = ClientForm(request.POST, instance=client) 
+        if form.is_valid():
+            form.save()
+            return redirect('clientsapp:clients')
+    else:
+        form = ClientForm(instance=client)
+
+    return render(request, 'edit_client.html', {'form': form, 'client': client})
+
+@login_required(login_url="signup")
+def delete_client(request, pk):
+    client = get_object_or_404(Client, pk=pk)
+    
+    if request.method == 'POST':
+        client.delete()
+        messages.success(request, 'Client deleted successfully.')
+        return redirect('clientsapp:clients')
+
+@login_required(login_url="signup")
 def get_registrations(request):
     registrations_list = Registration.objects.all()
     context = {"registrations_list":registrations_list}
     return render(request, 'registrations.html', context)
+
+
+@login_required(login_url="signup")
+def delete_registration(request, pk):
+    regist = get_object_or_404(Registration, pk=pk)
+    if request.method == 'POST':
+        regist.delete()
+        messages.success(request, 'Registration deleted successfully.')
+        return redirect('clientsapp:registrations')
 
 @login_required(login_url="signup")
 def registration_step1(request):

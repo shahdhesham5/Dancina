@@ -6,6 +6,16 @@ __pycache__/
 # C extensions
 *.so
 
+
+# Ignore Docker-related files
+docker-compose.override.yml
+docker-compose*.yml
+*.env
+Dockerfile
+Dockerfile.*
+.dockerignore
+git status
+
 # Distribution / packaging
 .Python
 build/
