@@ -37,6 +37,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://www.dancina.ictcoegyptstock.com",
 ]
 CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = [
+    "https://dancina.ictcoegyptstock.com",
+    "https://www.dancina.ictcoegyptstock.com",
+]
 
 # Application definition
 
@@ -54,10 +58,10 @@ INSTALLED_APPS = [
     # 'fontawesomefree', 
 ]
 
-MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware', 
+MIDDLEWARE = [ 
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",

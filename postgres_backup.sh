@@ -1,10 +1,12 @@
 #!/bin/bash
 
 # Variables
-BACKUP_DIR="$(pwd)/Backups"  # Store all backups in the Backups directory
+# Store all backups in the Backups directory
+BACKUP_DIR="/srv/Dancina/Dancina/Backups"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_FILE="$BACKUP_DIR/dancina_db_backup_$TIMESTAMP.sql"
 ZIP_FILE="$BACKUP_FILE.gz"
+DOCKER_BIN="/usr/bin/docker"
 DOCKER_CONTAINER="django_dancina_db"  # Name of the PostgreSQL container
 POSTGRES_USER="postgres"             # PostgreSQL username
 POSTGRES_DB="dancina_db"             # PostgreSQL database name

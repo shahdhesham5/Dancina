@@ -4,7 +4,7 @@ services:
     image: postgres:13
     container_name: django_dancina_db
     ports:
-      - "5432:5432"
+      - "5433:5432"
     env_file:
       - .env
     volumes:
@@ -13,9 +13,8 @@ services:
       POSTGRES_DB: dancina_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-
   web:
-    build: .  
+    build: .
     container_name: django_dancina
     command: >
       sh -c "
