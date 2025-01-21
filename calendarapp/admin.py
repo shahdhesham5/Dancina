@@ -21,13 +21,13 @@ class PackageTypeAdmin(admin.ModelAdmin):
 @admin.register(Package)
 class PackageAdmin(admin.ModelAdmin):
     model = Package
-    list_display = ('number_of_sessions', 'member_price', 'non_member_price')
+    list_display = ('number_of_sessions', 'member_price', 'non_member_price', 'member_price_per_class', 'non_member_price_per_class')
     
 
 @admin.register(Event)
 class EventAdmin(admin.ModelAdmin):
     model = Event
-    list_display = ["id", "name", "studio_location", "instructor", "user", "days", "from_time", "to_time","start_duration","end_duration", "is_private","is_active", "is_deleted"]
+    list_display = ["id", "name", "studio_location", "instructor", "user", "days", "from_time", "to_time","start_duration","end_duration", "is_private","is_other","is_active", "is_deleted"]
     list_filter = ["is_active", "is_deleted", "days"]
     search_fields = ["name"]
 

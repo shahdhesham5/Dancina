@@ -17,10 +17,8 @@ COPY requirements.txt /eventcalendar/
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . /eventcalendar
-
 # Expose the port for public access
 EXPOSE 8001
 
 # Command to run the Django application (using Gunicorn for production)
 CMD ["gunicorn", "eventcalendar.wsgi:application", "--bind", "0.0.0.0:8001", "--workers", "2"]
-

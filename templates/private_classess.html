@@ -1,0 +1,201 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Event List{% endblock title %}
+
+{% block breadcrumb %}
+    <div>
+        <h1><i class="fa fa-lock"></i>Private Classes</h1>
+    </div>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="tile">
+            <h1>Private</h1>
+            <div class="tile-body">
+                <div class="table-responsive">
+                    <div id="sampleTable_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4 no-footer">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table class="table table-hover table-bordered dataTable no-footer" id="sampleTable" role="grid" aria-describedby="sampleTable_info">
+                                    <thead>
+                                        <tr role="row">
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 189.281px;">Class Name</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 189.281px;">Class Instructor</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Start Time</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 189.281px;">End Time</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 189.281px;">Sessions</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 89.281px;">Edit</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 89.281px;">Delete</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for event in events %}
+                                            <tr role="row" class="odd">
+                                                <td>{{ event.name }}</td>
+                                                <td>{{ event.instructor }}</td>
+                                                <td>{{ event.from_time }}</td>
+                                                <td>{{ event.to_time }}</td>
+                                                <td>
+                                                    {% if event.registrations.first.classes_left > 1 %}
+                                                        <button type="button" class="btn btn-danger" data-event-id="{{ event.id }}" id="add-new-session">Add New Session</button>
+                                                    {% else %}
+                                                        <button type="button" class="btn btn-danger" disabled>Out of Sessions</button>
+                                                    {% endif %}
+
+                                                </td> 
+                                                <td>
+
+                                                    <a  href="{% url 'calendarapp:edit_private_event' event.id %}" class="font-weight-bold text-xs" >
+                                                        Edit &nbsp;&nbsp;<i class="fas fa-pencil-alt ms-auto text-dark cursor-pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Card"></i>
+                                                    </a>       
+                                                    
+                                                </td>  
+                                                <td>
+                                                    <form method="POST" action="{% url 'calendarapp:delete_private_event' event.id %}" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this class?');">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-link text-danger text-gradient">
+                                                        Delete &nbsp;&nbsp;<i class="far fa-trash-alt me-2"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- List all other events -->
+    <div class="col-md-12">
+        <div class="tile">
+            <h1>Others</h1>
+            <div class="tile-body">
+                <div class="table-responsive">
+                    <div id="sampleTable_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4 no-footer">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table class="table table-hover table-bordered dataTable no-footer" id="sampleTable" role="grid" aria-describedby="sampleTable_info">
+                                    <thead>
+                                        <tr role="row">
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 189.281px;">Other Event</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 189.281px">Studio Location</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 189.281px;">Days</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Start Time</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 189.281px;">End Time</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 89.281px;">Edit</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 89.281px;">Delete</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for event in others %}
+                                            <tr role="row" class="odd">
+                                                <td>{{ event.name }}</td>
+                                                <td>{{ event.studio_location }}</td>
+                                                <td>{{ event.days }}</td>
+                                                <td>{{ event.from_time }}</td>
+                                                <td>{{ event.to_time }}</td>
+                                                <td>
+                                                    <a  href="{% url 'calendarapp:edit_other_event' event.id %}" class="font-weight-bold text-xs" > 
+                                                        Edit &nbsp;&nbsp;<i class="fas fa-pencil-alt ms-auto text-dark cursor-pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Card"></i>
+                                                    </a>       
+                                                    
+                                                </td>   
+                                                <td>
+                                                    <form method="POST" action="{% url 'calendarapp:delete_private_event' event.id %}" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this class?');">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-link text-danger text-gradient">
+                                                        Delete &nbsp;&nbsp;<i class="far fa-trash-alt me-2"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>   
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- class modal -->
+    <div class="modal fade show" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" style=" max-height: 80vh;  overflow-y: auto;  ">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary">
+                    <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Session</h5>
+                    <button id="modalClose1" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form method="post" action="{% url 'calendarapp:add_new_session' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label">Enter the Date for the next session:</label>
+                            <input type="date" name="date" class="form-control" id="id_date" value="{{ form.date.value }}">
+                        </div>                        
+                    </div>
+                    <div class="modal-footer">
+                        <button id="modalClose2" type="button" class="btn btn-danger">Close</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extrascripts %}
+    <script type="text/javascript" src="{% static 'js/plugins/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/dataTables.bootstrap.min.js' %}"></script>
+    <script type="text/javascript">$('#sampleTable').DataTable();</script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const modalForm = document.querySelector("#eventModal");
+    const closeBtn1 = document.getElementById('modalClose1');
+    const closeBtn2 = document.getElementById('modalClose2');
+    const form = modalForm.querySelector('form');
+    const eventIdInput = document.createElement('input');
+    eventIdInput.setAttribute('type', 'hidden');
+    eventIdInput.setAttribute('name', 'event_id');  // This is the field we will use in the backend
+
+    document.querySelectorAll('#add-new-session').forEach(button => {
+        button.addEventListener('click', function () {
+            const eventId = this.getAttribute('data-event-id');
+            
+            // Set the hidden input's value to the clicked event's id
+            eventIdInput.value = eventId;
+            
+            // Append the hidden input to the form
+            form.appendChild(eventIdInput);
+            
+            // Show the modal
+            modalForm.style.display = 'block';
+        });
+    });
+
+    closeBtn1.addEventListener('click', () => {
+        modalForm.style.display = 'none';
+    });
+
+    closeBtn2.addEventListener('click', () => {
+        modalForm.style.display = 'none';
+    });
+});
+
+</script>
+
+
+
+{% endblock extrascripts %}

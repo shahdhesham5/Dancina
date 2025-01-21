@@ -4,14 +4,14 @@ services:
     image: postgres:13
     container_name: django_dancina_db
     ports:
-      - "5435:5432"
+      - "5437:5432"
     env_file:
       - .env
     volumes:
       - db_data:/var/lib/postgresql/data  # pesistantly store the data even when the docker is deleted or stopped
 
   web:
-    build: .  
+    build: .
     container_name: django_dancina
     command: >
       sh -c "

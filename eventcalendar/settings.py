@@ -32,9 +32,9 @@ DEBUG = os.getenv('DEBUG')
 ALLOWED_HOSTS = [host.strip() for host in os.environ.get("ALLOWED_HOSTS", "").split(",")]
 
 CORS_ALLOWED_ORIGINS = [
-    # "http://localhost:8000",  # This is where your frontend will be running
-    "https://dancina.ictcoegyptstock.com",
-    "https://www.dancina.ictcoegyptstock.com",
+    "http://localhost:8000",  # This is where your frontend will be running
+    # "https://dancina.ictcoegyptstock.com",
+    # "https://www.dancina.ictcoegyptstock.com",
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
@@ -147,3 +147,20 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/') 
 MEDIA_URL = '/media/'
 
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'level': 'DEBUG',
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'DEBUG',
+#             'propagate': True,
+#         },
+#     },
+# }

@@ -7,9 +7,14 @@ from calendarapp.models.event import Package, PackageType, ClassOccurrence
 from clients.forms import ClientForm, RegistrationStep1Form, RegistrationStep2Form, TransactionForm, TransactionSettingsForm
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.db import transaction
 from django.utils.timezone import now
 from django.contrib import messages
+import logging
+logger = logging.getLogger(__name__)
 
+
+# Clients
 @login_required(login_url="signup")
 def get_clients(request):
     clients_list = Client.objects.all()
@@ -21,10 +26,11 @@ def add_client(request):
     if request.method == 'POST':
         form = ClientForm(request.POST)
         if form.is_valid():
-            form.save()
+            client = form.save()
+            # form.save()
             return JsonResponse({
                 'success': True,
-                'message': 'Client added successfully'
+                'client_id': client.id  
             })
         else:
             errors = {field: form.errors.get(field) for field in form.fields}
@@ -58,12 +64,21 @@ def delete_client(request, pk):
         messages.success(request, 'Client deleted successfully.')
         return redirect('clientsapp:clients')
 
+
+
+# Registrations
 @login_required(login_url="signup")
 def get_registrations(request):
     registrations_list = Registration.objects.all()
-    context = {"registrations_list":registrations_list}
-    return render(request, 'registrations.html', context)
 
+    # Convert expiration_date to date for comparison
+    for regist in registrations_list:
+        if hasattr(regist, 'expiration_date') and regist.expiration_date:
+            regist.expiration_date = regist.expiration_date.date()
+
+    today = now().date()
+    context = {"registrations_list": registrations_list, "today": today}
+    return render(request, 'registrations.html', context)
 
 @login_required(login_url="signup")
 def delete_registration(request, pk):
@@ -89,7 +104,8 @@ def registration_step1(request):
             request.session['step1_data'] = step1_data
             return redirect('clientsapp:registration_step2')  
     else:
-        form = RegistrationStep1Form()
+        client_id = request.GET.get('client_id')
+        form = RegistrationStep1Form(initial={'client': client_id})  # Prepopulate the form with the client ID
     return render(request, 'registration_step1.html', {'form': form})
 
 @login_required(login_url="signup")
@@ -100,6 +116,7 @@ def registration_step2(request):
 
     package = get_object_or_404(Package, id=step1_data['package'])
     package_price = package.get_price(Client.objects.get(id=step1_data['client']).is_member)
+   
 
     if request.method == 'POST':
         form = RegistrationStep2Form(request.POST)
@@ -123,12 +140,26 @@ def registration_step2(request):
                 payment_method=payment_method,
                 date=now(),
             )
+            if registration.class_obj.is_private:
+                Attendance.objects.create(
+                    client=registration.client,
+                    event=registration.class_obj,
+                    attendance_date=registration.registration_date
+                )
+                # Update the registration attendance details
+                registration.classes_attended += 1
+                registration.classes_left = max(0, registration.classes_left - 1)
+                registration.save()
+                
             return redirect('clientsapp:registrations') 
     else:
         form = RegistrationStep2Form()
 
     return render(request, 'registration_step2.html', {'form': form, 'package_price': package_price})
 
+
+
+# Packages
 @login_required(login_url="signup")
 def get_packages(request):
     package_type_id = request.GET.get('package_type_id')
@@ -139,54 +170,58 @@ def get_packages(request):
     return JsonResponse({'error': 'Invalid Package Type ID'}, status=400)
 
 
+# Attendance
+@login_required(login_url="signup")
+def get_attendances(request):
+    attendances_list = Attendance.objects.all()
+    context = {"attendances_list":attendances_list}
+    return render(request, 'attendance.html', context)
+
+# @csrf_exempt
 # @login_required(login_url="signup")
 # def save_attendance(request):
 #     if request.method == 'POST':
 #         try:
 #             data = json.loads(request.body)
 #             attendance = data.get('attendance', [])
+#             class_occurrence_id = data.get('class_occurrence_id')  # Include occurrence ID in the request
+            
 #             for record in attendance:
 #                 member_id = record.get('memberId')
-#                 class_occurrence_id = record.get('classOccurrenceId')  # Include occurrence ID in the request
 #                 attended = record.get('attended')
-
 #                 if attended:
 #                     try:
-#                         # Fetch the registration and class occurrence
 #                         registration = Registration.objects.get(id=member_id)
 #                         class_occurrence = ClassOccurrence.objects.get(id=class_occurrence_id)
-
+                        
+#                         # Log to track the occurrence
+#                         logger.debug(f"Occurrence object: {class_occurrence}")
 #                         if registration.classes_left > 0:
-#                             # Update registration counts
 #                             registration.classes_left -= 1
 #                             registration.classes_attended += 1
 #                             registration._force_manual_update = True
-#                             registration.save()
-
+#                             # registration.save()
+                            
 #                             # Create an attendance record
-#                             Attendance.objects.create(
-#                                 client=registration.client,
-#                                 event=registration.class_obj,
-#                                 class_occurrence=class_occurrence
-#                             )
-#                             print(f"Attendance saved for {registration.client.name} "
-#                                   f"for class {registration.class_obj.name} on {class_occurrence.date}")
+#                             with transaction.atomic():
+#                                 registration.save()
+#                                 Attendance.objects.create(
+#                                     client=registration.client,
+#                                     event=registration.class_obj,
+#                                     attendance_date=class_occurrence.date,  # Set the attendance date as the class occurrence date
+#                                 )
+#                             logger.debug(f"Updated Registration: {registration.client.name}, "
+#                                           f"Classes Left: {registration.classes_left}, "
+#                                           f"Classes Attended: {registration.classes_attended}")
 #                         else:
-#                             print(f"Registration {member_id} has no classes left.")
-#                     except (Registration.DoesNotExist, ClassOccurrence.DoesNotExist) as e:
-#                         print(f"Error: {e}")
+#                             logger.warning(f"Registration {member_id} has no classes left.")
+#                     except Registration.DoesNotExist:
+#                         logger.error(f"Registration with ID {member_id} not found.")
 #             return JsonResponse({'status': 'success'})
 #         except Exception as e:
-#             print(f"Error: {e}")
+#             logger.error(f"Error: {e}")
 #             return JsonResponse({'status': 'error', 'message': str(e)})
 #     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
-
-
-@login_required(login_url="signup")
-def get_attendances(request):
-    attendances_list = Attendance.objects.all()
-    context = {"attendances_list":attendances_list}
-    return render(request, 'attendance.html', context)
 
 @csrf_exempt
 @login_required(login_url="signup")
@@ -195,35 +230,40 @@ def save_attendance(request):
         try:
             data = json.loads(request.body)
             attendance = data.get('attendance', [])
-            # class_occurrence_id = record.get('classOccurrenceId')  # Include occurrence ID in the request
-            
+
             for record in attendance:
                 member_id = record.get('memberId')
                 attended = record.get('attended')
+                ClassOccurrence_id = record.get('class_occurrence_id')
+
+                # Log to debug if we are receiving the correct attendance data
+                print(f"Attendance record: memberId={member_id}, attended={attended}")
+
                 if attended:
                     try:
                         registration = Registration.objects.get(id=member_id)
-                        # class_occurrence = ClassOccurrence.objects.get(id=class_occurrence_id)
-                        
+                        class_occurrence = ClassOccurrence.objects.get(id=ClassOccurrence_id)
+                
                         if registration.classes_left > 0:
                             registration.classes_left -= 1
                             registration.classes_attended += 1
                             registration._force_manual_update = True
                             registration.save()
-                            
-                        # Create an attendance record
+
+                            # Create the attendance record with the correct occurrence date
                             Attendance.objects.create(
                                 client=registration.client,
                                 event=registration.class_obj,
-                                # class_occurrence=class_occurrence
+                                attendance_date=class_occurrence.date,  # Set the attendance date to match the class occurrence
                             )
-                            print(f"Updated Registration: {registration.client.name}, "
-                                  f"Classes Left: {registration.classes_left}, "
-                                  f"Classes Attended: {registration.classes_attended}")
+                            print(f"Attendance recorded for {registration.client.name} on {class_occurrence.date}")
                         else:
                             print(f"Registration {member_id} has no classes left.")
                     except Registration.DoesNotExist:
                         print(f"Registration with ID {member_id} not found.")
+                    except ClassOccurrence.DoesNotExist:
+                        print(f"ClassOccurrence with ID {class_occurrence} not found.")
+            
             return JsonResponse({'status': 'success'})
         except Exception as e:
             print(f"Error: {e}")
@@ -231,10 +271,41 @@ def save_attendance(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
 
 @login_required(login_url="signup")
+def delete_attendance(request, pk):
+    attend = get_object_or_404(Attendance, pk=pk)
+    
+    if request.method == 'POST':
+        registration = Registration.objects.filter(
+            client=attend.client, 
+            class_obj=attend.event
+        ).first()
+
+        # Delete the attendance record
+        attend.delete()
+
+        # Update the registration counts
+        if registration:
+            registration.classes_attended = max(0, registration.classes_attended - 1)
+            registration.classes_left += 1
+            registration.save()
+        messages.success(request, 'Attendance deleted successfully.')
+        return redirect('clientsapp:attendance')
+    
+# Transactions
+@login_required(login_url="signup")
 def get_transactions(request):
     transactions_list = Transaction.objects.all()
     context = {"transactions_list":transactions_list}
     return render(request, 'transactions.html', context)
+
+@login_required(login_url="signup")
+def delete_transaction(request, pk):
+    trans = get_object_or_404(Transaction, pk=pk)
+    
+    if request.method == 'POST':
+        trans.delete()
+        messages.success(request, 'Transaction deleted successfully.')
+        return redirect('clientsapp:transactions')
 
 @login_required
 def update_transaction_settings(request):

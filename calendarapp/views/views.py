@@ -1,10 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect,  get_object_or_404
 from django.http import JsonResponse
 from itertools import groupby
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from calendarapp.forms import AddInstructorForm , AddStudioForm
 from calendarapp.models.event import Instructor, StudioLocation, Package, PackageType
+from django.contrib import messages
+
 
 @login_required(login_url="signup")
 def get_instructors(request):
@@ -30,6 +32,27 @@ def add_instructor(request):
             })
 
     return JsonResponse({'success': False, 'message': 'Invalid method'}, status=405)
+
+def delete_instructor(request, instructor_id):
+    instructor = get_object_or_404(Instructor, pk=instructor_id)
+    
+    if request.method == 'POST':
+        instructor.delete()
+        messages.success(request, 'Instructor deleted successfully.')
+        return redirect('calendarapp:instructors')
+
+def edit_instructor(request, instructor_id):
+    instructor = get_object_or_404(Instructor, pk=instructor_id)
+
+    if request.method == 'POST':
+        form = AddInstructorForm(request.POST, instance=instructor) 
+        if form.is_valid():
+            form.save()
+            return redirect('calendarapp:instructors')
+    else:
+        form = AddInstructorForm(instance=instructor)
+
+    return render(request, 'edit_instructor.html', {'form': form, 'instructor': instructor})
 
 
 @login_required(login_url="signup")
@@ -59,6 +82,27 @@ def add_studio(request):
     form = AddStudioForm()
     return render(request, 'studios.html', {'form': form})
 
+def delete_studio(request, studio_id):
+    studio = get_object_or_404(StudioLocation, pk=studio_id)
+    
+    if request.method == 'POST':
+        studio.delete()
+        messages.success(request, 'Studio deleted successfully.')
+        return redirect('calendarapp:studios')
+
+def edit_studio(request, studio_id):
+    studio = get_object_or_404(StudioLocation, pk=studio_id)
+
+    if request.method == 'POST':
+        form = AddStudioForm(request.POST, instance=studio) 
+        if form.is_valid():
+            form.save()
+            return redirect('calendarapp:studios')
+    else:
+        form = AddStudioForm(instance=studio)
+
+    return render(request, 'edit_studio.html', {'form': form, 'studio': studio})
+
 
 @login_required(login_url="signup")
 def get_packages(request):
@@ -78,24 +122,52 @@ def get_packages(request):
 @login_required(login_url="signup")
 def add_package(request):
     if request.method == 'POST':
-        package_type_id = request.POST.get('package_type')
-        new_package_type_name = request.POST.get('new_package_type')
+        try:
+            # Get the package type data
+            package_type_id = request.POST.get('package_type')
+            new_package_type_name = request.POST.get('new_package_type')
 
-        # Check if a new package type was provided
-        if new_package_type_name:
-            package_type, created = PackageType.objects.get_or_create(name=new_package_type_name)
-        else:
-            package_type = PackageType.objects.get(id=package_type_id)
+            # Check if a new package type was provided
+            if new_package_type_name:
+                package_type, created = PackageType.objects.get_or_create(name=new_package_type_name)
+            else:
+                package_type = PackageType.objects.get(id=package_type_id)
 
-        package = Package(
-            package_type=package_type,
-            number_of_sessions=request.POST['number_of_sessions'],
-            member_price=request.POST['member_price'],
-            non_member_price=request.POST['non_member_price']
-            # duration=request.POST['duration']
-        )
-        package.save()
+            # Create and save the new package
+            package = Package(
+                package_type=package_type,
+                number_of_sessions=request.POST['number_of_sessions'],
+                member_price=request.POST['member_price'],
+                non_member_price=request.POST['non_member_price'],
+                
+                member_price_per_class=request.POST['member_price_per_class'],
+                non_member_price_per_class=request.POST['non_member_price_per_class'],
+                duration=int(request.POST['duration'])   # Use the duration_months value
+            )
+            package.save()
 
-        return JsonResponse({'success': True})
+            # Return a successful JSON response
+            return JsonResponse({'success': True})
+
+        except Exception as e:
+            # Return an error JSON response with details
+            return JsonResponse({'success': False, 'error': str(e)})
+
     return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+def delete_package_type(request, package_type_id):
+    package_type = get_object_or_404(PackageType, pk=package_type_id)
+    
+    if request.method == 'POST':
+        package_type.delete()
+        messages.success(request, 'Package Type deleted successfully.')
+        return redirect('calendarapp:packages')
+
+def delete_package(request, package_id):
+    package = get_object_or_404(Package, pk=package_id)
+    
+    if request.method == 'POST':
+        package.delete()
+        messages.success(request, 'Package deleted successfully.')
+        return redirect('calendarapp:packages')
 

@@ -19,10 +19,10 @@
                                 <table class="table table-hover table-bordered dataTable no-footer" id="sampleTable" role="grid" aria-describedby="sampleTable_info">
                                     <thead>
                                         <tr role="row">
-                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 217.312px;">Student's Name</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 189.281px;">Student's Name</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Class Name</th>
-                                            <!-- <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 102.141px;">Class Date</th> -->
-                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 102.141px;">Date</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 189.281px;">Date</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 189.281px;">Delete</th>
 
                                         </tr>
                                     </thead>
@@ -31,9 +31,16 @@
                                             <tr role="row" class="odd">
                                                 <td>{{ attend.client.name }}</td>
                                                 <td>{{ attend.event.name }}</td>
-                                                <!-- <td>{{ attend.class_occurrence.date }}</td> -->
                                                 <td>{{ attend.attendance_date }}</td>
-                                   
+                                                <td>
+                                                    <!-- Delete button wrapped in a form -->
+                                                    <form method="POST" action="{% url 'clientsapp:delete_attendance' attend.id %}" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this Attendance?');">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-link text-danger text-gradient ">
+                                                        Delete &nbsp;&nbsp;<i class="far fa-trash-alt me-2"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>

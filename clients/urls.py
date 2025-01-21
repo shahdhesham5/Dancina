@@ -17,8 +17,11 @@ urlpatterns = [
     path('get-packages/', views.get_packages, name="get-packages"),
     path('attendance/', views.save_attendance, name="save_attendance"),
     path('get-attendances/', views.get_attendances, name="attendance"),
+    path('delete-attendance/<int:pk>/', views.delete_attendance, name="delete_attendance"),
+    
     path('transaction-settings/',views.update_transaction_settings,name='transaction_settings'),
     path('transactions/',views.get_transactions,name='transactions'),
+    path('delete-transaction/<int:pk>/',views.delete_transaction,name='delete_transaction'),
     path('add-transaction/',views.add_transaction,name='add_transaction'),
     path('get-payment-methods/', views.get_payment_methods, name='get_payment_methods'),       
     path('get_clients/',views.get_clients_for_transactionForm,name='get_clients'),

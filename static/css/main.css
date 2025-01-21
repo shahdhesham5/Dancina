@@ -70,7 +70,15 @@ body {
   text-align: left;
   background-color: #FFF;
 }
+.table-danger-regist {
+  background-color: #f8d7da !important;
+  color: #721c24 !important;
+}
 
+.table-warning-regist {
+  background-color: #fff3cd !important;
+  color: #856404 !important;
+}
 [tabindex="-1"]:focus {
   outline: 0 !important;
 }
@@ -13522,7 +13530,9 @@ NOTE: use percentage font sizes or else old IE chokes
   -webkit-box-shadow: none;
           box-shadow: none;
 }
-
+.fc .fc-button-primary{
+  background-color: #000 !important;
+}
 .fc-state-disabled {
   cursor: default;
   background-image: none;

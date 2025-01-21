@@ -23,12 +23,13 @@
                                     <thead>
                                         <tr role="row">
                                             <!-- <th class="sorting_asc" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 261.641px;">SL</th> -->
-                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Receipt</th>
-                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Student's Name</th>
-                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Class Name</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 189.281px;">Receipt</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 189.281px;">Student's Name</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 189.281px;">Class Name</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Value Paid</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Payment method</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Date</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Delete</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -41,7 +42,15 @@
                                                 <td>{{ trans.value_paid }}</td>
                                                 <td>{{ trans.payment_method }}</td>
                                                 <td>{{ trans.date }}</td>
-                                                
+                                                <td>
+                                                    <!-- Delete button wrapped in a form -->
+                                                    <form method="POST" action="{% url 'clientsapp:delete_transaction' trans.id %}" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this Transaction?');">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-link text-danger text-gradient ">
+                                                        Delete &nbsp;&nbsp;<i class="far fa-trash-alt me-2"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>

@@ -46,7 +46,7 @@
         <div class="app-sidebar__overlay" data-toggle="sidebar"></div>
         <aside class="app-sidebar">
             <div class="app-sidebar__user">
-                <img class="app-sidebar__user-avatar" src="{% static 'images/logo.JPG' %}" alt="User Image" height="50px" width="50px"/>
+                <img class="app-sidebar__user-avatar" src="{% static 'images/logo5.JPG' %}" alt="User Image" height="50px" width="50px"/>
                 <div>
                     <p class="app-sidebar__user-name">Dancina</p>
                     <!-- <p class="app-sidebar__user-designation"> Admin</p> -->
@@ -60,6 +60,9 @@
                
                 <li>
                     <a class="app-menu__item" href="{% url 'calendarapp:all_events' %}"><i class="app-menu__icon fa fa-star"></i><span class="app-menu__label">Classes</span></a>
+                </li>
+                <li>
+                    <a class="app-menu__item" href="{% url 'calendarapp:get_private_classes' %}"><i class="app-menu__icon fa fa-lock"></i><span class="app-menu__label">Private Classes</span></a>
                 </li>
                 <li>
                     <a class="app-menu__item" href="{% url 'calendarapp:instructors' %}"><i class="app-menu__icon fa fa-chalkboard-teacher"></i><span class="app-menu__label">Instuctors</span></a>

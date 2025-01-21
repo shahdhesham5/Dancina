@@ -29,11 +29,18 @@ class PackageType(models.Model):
         return self.name
     
 class Package(models.Model):
+    PACKAGE_DURATION_CHOICES = [
+        (1, '1 Month'),
+        (2, '2 Months'),
+        (3, '3 Months'),
+    ]
     package_type = models.ForeignKey(PackageType, on_delete=models.CASCADE, related_name='package_type', null=True, blank=True)
     number_of_sessions = models.PositiveIntegerField()
     member_price = models.IntegerField(validators=[MinValueValidator(0)])      # Price for members
+    member_price_per_class = models.IntegerField(validators=[MinValueValidator(0)])      # Price for members
     non_member_price = models.IntegerField(validators=[MinValueValidator(0)])  # Price for non-members
-    duration = models.DurationField(default=timedelta(days=30))
+    non_member_price_per_class = models.IntegerField(validators=[MinValueValidator(0)])  # Price for non-members
+    duration = models.IntegerField(choices=PACKAGE_DURATION_CHOICES, default=1)  # Duration in months
     
     def __str__(self):
         return f"Package of {self.number_of_sessions} classes"
@@ -50,8 +57,12 @@ class EventManager(models.Manager):
     """ Event manager """
 
     def get_all_events(self):
-        events = Event.objects.filter(is_active=True, is_deleted=False)
+        events = Event.objects.filter(is_active=True, is_deleted=False, is_private=False, is_other=False)
         return events
+
+    # def get_all_private_events(self):
+    #     events = Event.objects.filter(is_active=True, is_deleted=False, is_private=True)
+    #     return events
 
     # def get_running_events(self):
     #     running_events = Event.objects.filter(
@@ -95,7 +106,8 @@ class Event(EventAbstract):
     
     start_duration = models.DateField(null=True)
     end_duration = models.DateField(null=True)
-
+    color = models.CharField(max_length=7, null=True, blank=True)  # HEX color code
+    
     objects = EventManager()
 
     def __str__(self):
@@ -112,6 +124,6 @@ class Event(EventAbstract):
 
 class ClassOccurrence(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="occurrences")
-    date = models.DateField()  # Specific date for this occurrence
+    date = models.DateField(null=True) 
     def __str__(self):
         return f"{self.event.name} on {self.date}"

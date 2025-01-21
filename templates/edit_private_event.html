@@ -1,0 +1,12 @@
+{% extends 'base/base.html' %}
+{% block content %}
+  <div class="container">
+    <h2>Edit Private Class</h2>
+    <form action="{% url 'calendarapp:edit_private_event' event.id %}" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-success">Update </button>
+      <a href="{% url 'calendarapp:get_private_classes' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+  </div>
+{% endblock %}

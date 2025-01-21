@@ -11,6 +11,9 @@
     <h1><i class="fa-regular fa-calendar-days"></i> Calendar </h1>
     <p>Classes Calendar</p>
 </div>
+<ul class="app-breadcrumb breadcrumb">
+    <button id="add-private" type="button" class="btn btn-primary">Add Private</button>
+</ul>
 {% endblock breadcrumb %}
 
 {% block content %}
@@ -59,12 +62,13 @@
             <div class="col-md-12">
                 <div id="calendar"></div>
             </div>
+            <!-- Modal to View Details of event -->
             <div class="modal fade show" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
               <div class="modal-dialog modal-dialog-centered" role="document">
                   <div class="modal-content">
                       <div class="modal-header bg-primary">
                           <h5 class="modal-title text-white" id="title_event_detail"></h5>
-                          <button id="modalDetailClose" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <button id="modalClose" type="button" class="close" data-dismiss="modal" aria-label="Close">
                               <span aria-hidden="true">&times;</span>
                           </button>
                       </div>
@@ -92,23 +96,240 @@
                                   <label for="message-text" class="col-form-label">End:</label>
                                   <p id = "end_event_detail">
                               </div>
-                              <div class="form-group">
+                              <div class="form-group" id="members-section" style="display: none;">
                               <p><strong>Members:</strong></p>
                               <ul id="event-members"></ul>
                               <button id="save-attendance" type="button" class="btn btn-primary mt-2">Save Attendance</button>
-                            </div>
+                              </div>
                           <div class="modal-footer">
                               <button id="delete-event-button" data-event-id="" type="button" class="btn btn-danger">Delete</button>
-
-                              <!-- <button id="add-to-next-week" data-event-id-week="" type="button" class="btn btn-success">Next Week</button> -->
-                              <!-- <button id="add-to-next-day" data-event-id-day="" type="button" class="btn btn-primary">Next Day</button> -->
-
                           </div>
                         </div>
                       </form>
                   </div>
               </div>
           </div>
+
+        <!-- Modal to add New Private or Other -->
+        <div class="modal fade" id="PrivateModal" tabindex="-1" role="dialog" aria-labelledby="PrivateModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title text-white" id="PrivateModalLabel">Add New</h5>
+                        <button id="modalClose" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Do you want to add new private class or other ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="privateBtn" type="button" class="btn btn-success">Private CLass</button>
+                        <button id="otherBtn" type="button" class="btn btn-success">Other</button>
+                        <button id="modalClose" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to add Private -->
+        <div class="modal fade" id="AddPrivateModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Private Class</h5>
+                        <button id="modalClose" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form method="post" action="{% url 'calendarapp:add_private_class' %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="recipient-name" class="col-form-label">Class Name:</label>
+                                {{ form.name }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label">Instructor:</label>
+                                {{ form.instructor }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label"> Start Duration:</label>
+                                {{ form.start_duration }}
+                            </div>
+                       
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label"> From:</label>
+                                {{ form.from_time }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label"> To:</label>
+                                {{ form.to_time }}
+                            </div>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button id="modalClose" type="button" class="btn btn-danger">Close</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to register client to the Private class or Delete this class-->
+        <div class="modal fade" id="PrivateDetailsModal" tabindex="-1" role="dialog" aria-labelledby="PrivateModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title text-white" id="PrivateModalLabel">Private Class</h5>
+                        <button id="modalClose" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Would You Like To Proceed or Cancel ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="newRegisterBtn" type="button" class="btn btn-success">Register</button>
+                        <button id="delete-event-button-private" data-event-id="" type="button" class="btn btn-danger">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to add Client -->
+        <div class="modal fade" id="ClientModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Student</h5>
+                        <button id="modalClose4" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form id="clientForm" method="post">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="name" class="col-form-label">Name:</label>
+                                <input type="text" id="name" name="name" class="form-control" value="{{ form.name.value|default:'' }}" placeholder="Enter Student's name">
+                                <span class="text-danger" id="name-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone_number" class="col-form-label">Phone Number:</label>
+                                <input type="text" id="phone_number" name="phone_number" class="form-control" value="{{ form.phone_number.value|default:'' }}" placeholder="Enter phone number">
+                                <span class="text-danger" id="phone_number-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="email" class="col-form-label">Email:</label>
+                                <input type="text" id="email" name="email" class="form-control" value="{{ form.email.value|default:'' }}" placeholder="Enter email">
+                                <span class="text-danger" id="email-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="address" class="col-form-label">Address:</label>
+                                <input type="text" id="address" name="address" class="form-control" value="{{ form.address.value|default:'' }}" placeholder="Enter address">
+                                <span class="text-danger" id="address-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="preferred_time" class="col-form-label">Preferred Time</label>
+                                <input type="text" id="preferred_time" name="preferred_time" class="form-control" value="{{ form.preferred_time.value|default:'' }}" placeholder="Enter preferred time">
+                                <span class="text-danger" id="preferred_time-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="is_member" class="col-form-label">Is member:</label><span>  </span>
+                                <input type="checkbox" id="is_member" name="is_member" class="form-check-input" {% if form.is_member.value %}checked{% endif %}>
+                                <span class="text-danger" id="is_member-error"></span>
+                            </div>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button id="modalClose1" type="button" class="btn btn-danger">Close</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to confirm registration -->
+        <div class="modal fade" id="registrationConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="registrationConfirmationModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title text-white" id="registrationConfirmationModalLabel">Client Added Successfully</h5>
+                        <button id="modalClose1" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>The client has been added successfully. Do you want to register this client for a class?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="modalClose1" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button id="registerBtn" type="button" class="btn btn-success">Register</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal to add other -->
+        <div class="modal fade" id="AddOtherModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" style=" max-height: 90vh;  overflow-y: auto;">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary">
+                        <h5 class="modal-title text-white" id="exampleModalLongTitle">Add New Other Event</h5>
+                        <button id="modalClose" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <form method="post" action="{% url 'calendarapp:add_other_class' %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="recipient-name" class="col-form-label">Class Name:</label>
+                                {{ form.name }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label">Studio Location:</label>
+                                {{ form.studio_location }}
+                            </div>
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label"> Start Duration:</label>
+                                {{ form.start_duration }}
+                            </div>
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label"> End Duration:</label>
+                                {{ form.end_duration }}
+                            </div>
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label">Days:</label>
+                                {{ form.days }}
+                            </div>
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label"> From:</label>
+                                {{ form.from_time }}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="message-text" class="col-form-label"> To:</label>
+                                {{ form.to_time }}
+                            </div>
+                            
+                        </div>
+                        <div class="modal-footer">
+                            <button id="modalClose3" type="button" class="btn btn-danger">Close</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         </div>
     </div>
 </div>
@@ -118,238 +339,355 @@
 {% block extrascripts %}
 <script src="{% static 'calender/main.js' %}"></script>
 <script>
-  function converterDataParaDjangoFormat(data) {
-      const dataJS = new Date(data);
-      const year = dataJS.getFullYear();
-      const month = (dataJS.getMonth() + 1).toString().padStart(2, '0');
-      const day = dataJS.getDate().toString().padStart(2, '0');
-      const hour = dataJS.getHours().toString().padStart(2, '0');
-      const minute = dataJS.getMinutes().toString().padStart(2, '0');
-      const second = dataJS.getSeconds().toString().padStart(2, '0');
-      const formatoDjango = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
-      return formatoDjango;
-      
-  }
-    document.addEventListener('DOMContentLoaded', function() {
-      var calendarEl = document.getElementById('calendar');
-      var today = new Date();
-      var calendar = new FullCalendar.Calendar(calendarEl, {
-
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay,list'
-        },
-        initialDate: today,
-        navLinks: true, 
-        selectable: true,
-        selectMirror: true,
-        editable: true,
-        dayMaxEvents: true,
+    function converterDataParaDjangoFormat(data) {
+        const dataJS = new Date(data);
+        const year = dataJS.getFullYear();
+        const month = (dataJS.getMonth() + 1).toString().padStart(2, '0');
+        const day = dataJS.getDate().toString().padStart(2, '0');
+        const hour = dataJS.getHours().toString().padStart(2, '0');
+        const minute = dataJS.getMinutes().toString().padStart(2, '0');
+        const second = dataJS.getSeconds().toString().padStart(2, '0');
+        const formatoDjango = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+        return formatoDjango;
         
-        events: JSON.parse('{{ events|escapejs }}'),
-        // Applying styles to the entire event block
-        eventDidMount: function (info) {
-            const event = info.event;
-            const eventElement = info.el;
+    }
+      let class_occurrence_id = null; 
+      document.addEventListener('DOMContentLoaded', function() {
+      
+        var calendarEl = document.getElementById('calendar');
+        var today = new Date();
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+  
+          headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,list'
+          },
+          initialDate: today,
+          navLinks: true, 
+          selectable: true,
+          selectMirror: true,
+          editable: true,
+          dayMaxEvents: true,
+          
+          events: JSON.parse('{{ events|escapejs }}'),
+          // Applying styles to the entire event block
+          eventDidMount: function (info) {
+              const event = info.event;
+              const eventElement = info.el;
+  
+              // Access color from the 'ui' object
+              const eventColor = event._def.ui || {};
+  
+              // Apply the event colors
+              eventElement.style.backgroundColor = eventColor.backgroundColor || '#fff'; // Default to white if not provided
+              eventElement.style.borderColor = eventColor.borderColor || eventColor.backgroundColor || '#000'; // Default border color
+              eventElement.style.color = eventColor.textColor || '#000'; // Text color fallback
+  
+              // Ensure that the text remains visible and not affected by the background
+              const eventTitle = eventElement.querySelector('.fc-event-title');
+              if (eventTitle) {
+                  eventTitle.style.color = eventColor.textColor || '#000'; // Set text color explicitly
+              }
+          },
+  
+          // Optional: Removing the hover effects that override your color
+          eventMouseEnter: function (info) {
+              info.el.style.backgroundColor = info.event._def.ui.backgroundColor;
+          },
+          eventMouseLeave: function (info) {
+              info.el.style.backgroundColor = info.event._def.ui.backgroundColor;
+          },
+          
+          eventClick: function(arg) {
+            
+            console.log('clicked', arg.event)
+            class_occurrence_id = arg.event.id;  // Get the instanceId of the clicked event
+          //   console.log('Class Occurrence ID:', class_occurrence_id);  // For debugging
+            const isPrivate = arg.event.extendedProps.is_private;
+            const isOther = arg.event.extendedProps.is_other;
+            const registrationsCount = arg.event.extendedProps.members ? arg.event.extendedProps.members.length : 0; // Safely check for members
+  
+            var title = arg.event.title;
+            var start = formatDateTime(arg.event.start) ;
+            var end = formatDateTime(arg.event.end);
+            var instructor = arg.event.extendedProps.instructor || '';
+            var location = arg.event.extendedProps.location || '';
+            var members = arg.event.extendedProps.members || 'No members registered in this class';
+            var id = arg.event.id;
+        
+            if (isPrivate && registrationsCount === 0) {
+                // Show the Private Class modal if no registrations for the private class
+                $('#PrivateDetailsModal').modal('show');
+                var deleteButton = document.getElementById("delete-event-button-private");
+                deleteButton.setAttribute("data-event-id", id);
 
-            // Access color from the 'ui' object
-            const eventColor = event._def.ui || {};
+                // Register button click listener to show the client modal
+                document.getElementById("newRegisterBtn").addEventListener('click', function() {
+                    // Open the Client Modal for registering a new client
+                    $('#PrivateDetailsModal').modal('hide');
+                    $('#ClientModal').modal('show');
+                });
+              }
+            else if (isOther){
+                var modalInputEnd = document.getElementById('end_event_detail'); 
+                var modal = document.getElementById('detailModal')
+                var modalTitle = document.getElementById('title_event_detail'); 
+                var modalStart = document.getElementById('start_event_detail'); 
+                var modalEnd = document.getElementById('end_event_detail'); 
+                var modalLocation = document.getElementById('location_event_detail'); 
+                var deleteButton = document.getElementById("delete-event-button");
+                  deleteButton.setAttribute("data-event-id", id);
+            
+                  modalTitle.textContent = title;
+                  modalStart.textContent = start;
+                  modalEnd.textContent = end;
+                  modalLocation.textContent = location;
+                          
+                  $('#detailModal').modal('show');
 
-            // Apply the event colors
-            eventElement.style.backgroundColor = eventColor.backgroundColor || '#fff'; // Default to white if not provided
-            eventElement.style.borderColor = eventColor.borderColor || eventColor.backgroundColor || '#000'; // Default border color
-            eventElement.style.color = eventColor.textColor || '#000'; // Text color fallback
+                } 
+                else {
+                var modalInputEnd = document.getElementById('end_event_detail'); 
+                var modal = document.getElementById('detailModal');
+                var modalTitle = document.getElementById('title_event_detail'); 
+                var modalStart = document.getElementById('start_event_detail'); 
+                var modalEnd = document.getElementById('end_event_detail'); 
+                var modalInstructor = document.getElementById('instructor_event_detail'); 
+                var modalLocation = document.getElementById('location_event_detail'); 
+                var membersList = document.getElementById('event-members');
+                var saveAttendanceButton = document.getElementById('save-attendance');
+                var membersSection = document.getElementById('members-section'); 
 
-            // Ensure that the text remains visible and not affected by the background
-            const eventTitle = eventElement.querySelector('.fc-event-title');
-            if (eventTitle) {
-                eventTitle.style.color = eventColor.textColor || '#000'; // Set text color explicitly
+                // Clear and populate members list with checkboxes
+                membersList.innerHTML = ''; // Clear previous members
+                if (members.length > 0) {
+                    members.forEach(function(member) {
+                        var listItem = document.createElement('li');
+                        var checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.className = 'attendance-checkbox';
+                        checkbox.dataset.memberId = member.id;
+                        checkbox.dataset.memberName = member.name; // Store member name
+                        checkbox.dataset.sessionsLeft = member.sessions_left; // Store sessions left
+
+                        var label = document.createElement('label');
+                        listItem.textContent = `${member.client__name} (Sessions left: ${member.classes_left}, Attended: ${member.classes_attended})`;
+                        listItem.appendChild(checkbox);
+                        listItem.appendChild(label);
+                        membersList.appendChild(listItem);
+                    });
+
+                    // Show members list and save button
+                    // membersList.style.display = 'block';
+                    // saveAttendanceButton.style.display = 'inline-block';
+                    membersSection.style.display = 'block';
+                } else {
+                    // Hide members list and save button
+                    // membersList.style.display = 'none';
+                    // saveAttendanceButton.style.display = 'none';
+                    membersSection.style.display = 'none';
+                }
+
+                var deleteButton = document.getElementById("delete-event-button");
+                deleteButton.setAttribute("data-event-id", id);
+
+                modalTitle.textContent = title;
+                modalStart.textContent = start;
+                modalEnd.textContent = end;
+                modalInstructor.textContent = instructor;
+                modalLocation.textContent = location;
+                        
+                $('#detailModal').modal('show');
             }
-        },
-
-        // Optional: Removing the hover effects that override your color
-        eventMouseEnter: function (info) {
-            info.el.style.backgroundColor = info.event._def.ui.backgroundColor;
-        },
-        eventMouseLeave: function (info) {
-            info.el.style.backgroundColor = info.event._def.ui.backgroundColor;
-        },
-        
-        eventClick: function(arg) {
           
-          console.log('clicked', arg.event)
-          var title = arg.event.title;
-          var start = formatDateTime(arg.event.start) ;
-          var end = formatDateTime(arg.event.end);
-          var instructor = arg.event.extendedProps.instructor || '';
-          var location = arg.event.extendedProps.location || '';
-          var members = arg.event.extendedProps.members || 'No members registered in this class';
-          var id = arg.event.id;
-      
-          var modalInputEnd = document.getElementById('end_event_detail'); 
-
           
-          var modal = document.getElementById('detailModal')
-          var modalTitle = document.getElementById('title_event_detail'); 
-          var modalStart = document.getElementById('start_event_detail'); 
-          var modalEnd = document.getElementById('end_event_detail'); 
-          var modalInstructor = document.getElementById('instructor_event_detail'); 
-          var modalLocation = document.getElementById('location_event_detail'); 
-        //   var modalDate = document.getElementById('date_event_detail'); 
-          var membersList = document.getElementById('event-members');
-
-        // Clear and populate members list with checkboxes
-        membersList.innerHTML = ''; // Clear previous members
-        members.forEach(function(member) {
-            var listItem = document.createElement('li');
-            var checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.className = 'attendance-checkbox';
-            checkbox.dataset.memberId = member.id;
-            checkbox.dataset.memberName = member.name; // Store member name
-            checkbox.dataset.sessionsLeft = member.sessions_left; // Store sessions left
-
-            var label = document.createElement('label');
-            listItem.textContent = `${member.client__name} (Sessions left: ${member.classes_left}, Attended: ${member.classes_attended})`;
-            listItem.appendChild(checkbox);
-            listItem.appendChild(label);
-            membersList.appendChild(listItem);
+          },
+          
         });
-          
-          var deleteButton = document.getElementById("delete-event-button");
-        //   var nextWeek = document.getElementById("add-to-next-week");
-        //   var nextDay = document.getElementById("add-to-next-day");
-
-          deleteButton.setAttribute("data-event-id", id);
-        //   nextWeek.setAttribute("data-event-id-week", id);
-        //   nextDay.setAttribute("data-event-id-day", id);
-          $('#detailModal').modal('show');
-          modalTitle.textContent = title;
-          modalStart.textContent = start;
-          modalEnd.textContent = end;
-          modalInstructor.textContent = instructor;
-          modalLocation.textContent = location;
-        //   modalDate.textContent = date;
-          
-         
-          $('#detailModal').modal('show');
-        },
-        
+  
+        calendar.render()
+      });
+      document.getElementById("add-private").addEventListener("click", function() {
+          $('#PrivateModal').modal('show');
+      });
+      
+      document.getElementById("privateBtn").addEventListener("click", function() {
+          $('#PrivateModal').modal('hide');
+          $('#AddPrivateModal').modal('show');
       });
 
-      calendar.render()
-    });
+      document.getElementById("otherBtn").addEventListener("click", function() {
+          $('#PrivateModal').modal('hide');
+          $('#AddOtherModal').modal('show');
+      });
 
-    document.getElementById('save-attendance').addEventListener('click', function () {
-        var url = "{% url 'clientsapp:save_attendance' %}";
-        var attendanceData = [];       
-        document.querySelectorAll('.attendance-checkbox').forEach(function (checkbox) {
-            attendanceData.push({
-                memberId: checkbox.dataset.memberId,
-                attended: checkbox.checked,
+      document.getElementById('save-attendance').addEventListener('click', function () {
+          var url = "{% url 'clientsapp:save_attendance' %}";
+          var attendanceData = [];       
+          // Use the global variable class_occurrence_id
+          if (class_occurrence_id === null) {
+              console.error('Instance ID is not set');
+              return; // Prevent submission if instanceId is not set
+          }
+          document.querySelectorAll('.attendance-checkbox').forEach(function (checkbox) {
+              attendanceData.push({
+                  memberId: checkbox.dataset.memberId,
+                  attended: checkbox.checked,
+                  class_occurrence_id: class_occurrence_id,
+              });
+              // console.log('Attendance data being sent:', attendanceData)
+          });
+  
+         
+          fetch(url, {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'X-CSRFToken': getCSRFToken(),
+              },
+              body: JSON.stringify({ attendance: attendanceData}),
+          })
+          .then(response => {
+              if (response.ok) {
+                  $('#detailModal').modal('hide');
+                  window.location.reload();
+  
+              } else {
+                  console.error('Failed to save attendance:', response);
+              }
+          })
+          .catch(error => {
+              console.error('Error saving attendance:', error);
+          });
+      });
+  
+      function getCSRFToken() {
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      return csrfToken;
+      }
+  
+      const closeBtn = document.getElementById('modalClose');
+      closeBtn.addEventListener('click',()=>{
+        const eventModal = document.getElementById('detailModal')
+        eventModal.style.display = 'none';
+        const PrivateModal = document.getElementById('PrivateModal')
+        PrivateModal.style.display = 'none';
+        const OtherPrivateModal = document.getElementById('AddOtherModal')
+        OtherPrivateModal.style.display = 'none';
+      });
+      
+      function formatDateTime(dateTime) {
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
+        const dataFormatada = new Date(dateTime).toLocaleDateString('en-US', options);
+        return dataFormatada;
+      };
+      
+      document.getElementById('delete-event-button').addEventListener('click', function() {
+        const eventId = this.getAttribute('data-event-id');
+        if (confirm('Are you sure you want to delete this class?')) {
+            $.ajax({
+                url: `/delete_event/${eventId}/`,
+                type: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                  //   alert(response.message);
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                  //   alert('Error!');
+                  console.error("Error deleting the event:", error);
+                }
+            
             });
-            console.log('Attendance data being sent:', attendanceData)
-        });
+        }});
+        
+      document.getElementById('delete-event-button-private').addEventListener('click', function() {
+        const eventId = this.getAttribute('data-event-id');
+        if (confirm('Are you sure you want to delete this class?')) {
+            $.ajax({
+                url: `/delete_event/${eventId}/`,
+                type: 'POST',
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function(response) {
+                  //   alert(response.message);
+                    window.location.reload();
+                },
+                error: function(xhr, status, error) {
+                  //   alert('Error!');
+                  console.error("Error deleting the event:", error);
+                }
+            
+            });
+        }});
 
-       
-        fetch(url, {
-            method: 'POST',
+    const clientForm = document.querySelector('#clientForm');
+    clientForm.addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent traditional form submission
+
+        const formData = new FormData(clientForm);
+
+        fetch("{% url 'clientsapp:add_client' %}", { 
+            method: "POST",
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCSRFToken(),
+                "X-Requested-With": "XMLHttpRequest",
+                "X-CSRFToken": formData.get('csrfmiddlewaretoken')
             },
-            body: JSON.stringify({ attendance: attendanceData }),
+            body: formData
         })
-        .then(response => {
-            if (response.ok) {
-                $('#detailModal').modal('hide');
-                window.location.reload(); 
+        .then(response => response.json())  // Convert the response to JSON
+        .then(data => {
+            if (data.success) {
+                $('#ClientModal').modal('hide');  // Hide the client modal
+                clientForm.reset();  // Reset the form
+
+                // Show the registration confirmation modal
+                $('#registrationConfirmationModal').modal('show'); 
+
+                // Store the client_id for redirection
+                const clientId = data.client_id;
+
+                // Add event listener to the "Register" button to redirect to the registration form
+                document.getElementById("registerBtn").addEventListener('click', function() {
+                    location.href = "{% url 'clientsapp:registration_step1' %}?client_id=" + clientId;
+                });
             } else {
-                console.error('Failed to save attendance:', response);
+                // Reset all error messages
+                document.querySelectorAll('.text-danger').forEach(function(errorSpan) {
+                    errorSpan.textContent = '';
+                });
+
+                // Display errors from the response
+                const errors = data.errors || {};  // Ensure errors is always an object
+                Object.keys(errors).forEach(field => {
+                    const errorElement = document.querySelector(`#${field}-error`);
+                    if (errorElement) {
+                        errorElement.textContent = errors[field].join(', ');
+                    }
+                });
             }
         })
         .catch(error => {
-            console.error('Error saving attendance:', error);
+            console.error("Error:", error);
+            alert("There was an error processing your request. Please try again.");
         });
     });
 
-    function getCSRFToken() {
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    return csrfToken;
-    }
-
-    const closeBtn3 = document.getElementById('modalDetailClose');
-    closeBtn3.addEventListener('click',()=>{
-      const eventModal = document.getElementById('detailModal')
-      eventModal.style.display = 'none';
+    // Close modal buttons
+    document.getElementById("modalClose1").addEventListener("click", function() {
+        $('#ClientModal').modal('hide');
+        $('#registrationConfirmationModal').modal('hide');
     });
-    function formatDateTime(dateTime) {
-      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', timeZoneName: 'short' };
-      const dataFormatada = new Date(dateTime).toLocaleDateString('en-US', options);
-      return dataFormatada;
-    };
-    document.getElementById('delete-event-button').addEventListener('click', function() {
-      const eventId = this.getAttribute('data-event-id');
-      if (confirm('Are you sure you want to delete this class?')) {
-          $.ajax({
-              url: `/delete_event/${eventId}/`,
-              type: 'POST',
-              data: {
-                  csrfmiddlewaretoken: '{{ csrf_token }}'
-              },
-              success: function(response) {
-                  alert(response.message);
-                  window.location.reload();
-              },
-              error: function(xhr, status, error) {
-                  alert('Error!');
-              }
-          
-          });
-      }});
-      
-    document.getElementById('add-to-next-week').addEventListener('click', function() {
-        const eventId = this.getAttribute('data-event-id-week');
-        if (confirm('Are you sure you want add this event to next week?')) {
-            $.ajax({
-            url: `/next_week/${eventId}/`,
-                type: 'POST',
-                data: {
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
-                },
-                success: function(response) {
-                    alert(response.message);
-                    window.location.reload();
-                },
-                error: function(xhr, status, error) {
-                    alert('Error!');
-                }
-            });
-        }
-  });
-
-    document.getElementById('add-to-next-day').addEventListener('click', function() {
-        const eventId = this.getAttribute('data-event-id-day');
-        if (confirm('Are you sure you want add this event to next day?')) {
-            $.ajax({
-            url: `/next_day/${eventId}/`,
-                type: 'POST',
-                data: {
-                    csrfmiddlewaretoken: '{{ csrf_token }}'
-                },
-                success: function(response) {
-                    alert(response.message);
-                    window.location.reload();
-                },
-                error: function(xhr, status, error) {
-                    alert('Error!');
-                }
-            });
-        }
-});
-
-
-</script>
+    document.getElementById("modalClose3").addEventListener("click", function() {
+        $('#AddOtherModal').modal('hide');
+    });
+    document.getElementById("modalClose4").addEventListener("click", function() {
+        $('#ClientModal').modal('hide');
+    });
+  </script>
 {% endblock extrascripts %}
 

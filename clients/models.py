@@ -3,9 +3,9 @@ from calendarapp.models.event import Package, Event, PackageType, ClassOccurrenc
 from django.core.validators import RegexValidator
 import uuid
 from django.utils.timezone import now
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.db import transaction
-    
+
 class Client(models.Model):
     name = models.CharField(max_length=100)
     address = models.TextField(max_length=500) 
@@ -54,7 +54,8 @@ class Registration(models.Model):
         is_new = self.pk is None 
         # Calculate the price left based on package price and payment type
         if is_new and not self.expiration_date:  # Only calculate price_left for new instances
-            self.expiration_date = self.registration_date + self.package.duration
+            # self.expiration_date = self.registration_date + self.package.duration
+            self.expiration_date = self.registration_date + timedelta(days=self.package.duration * 30)
             total_price = self.package.get_price(self.client.is_member)
             self.classes_left = self.package.number_of_sessions - self.classes_attended
             self.price_left = total_price - self.price_paid
@@ -111,7 +112,7 @@ class Attendance(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name="attendances")
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="attendances")
     # class_occurrence = models.ForeignKey(ClassOccurrence, on_delete=models.CASCADE, related_name="attendances")
-    attendance_date = models.DateField(auto_now_add=True)
+    attendance_date = models.DateField()
 
     def __str__(self):
         return f"Attendance: {self.client.name} for {self.event.name} "

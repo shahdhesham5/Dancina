@@ -23,9 +23,12 @@
                                     <thead>
                                         <tr role="row">
                                             <!-- <th class="sorting_asc" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-sort="ascending" aria-label="Name: activate to sort column descending" style="width: 261.641px;">SL</th> -->
-                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 417.312px;">Name</th>
-                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Location</th>
-                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Share Percentage</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150.312px;">Name</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 150.312px;">Location</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 150.312px;">Share Percentage</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 89.281px;">Edit</th>
+                                            <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 89.281px;">Delete</th>
+                                        
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -35,7 +38,22 @@
                                                 <td>{{ studio.name }}</td>
                                                 <td>{{ studio.address }}</td>
                                                 <td>{{ studio.share_percentage }}</td>
-                                                
+                                                <td>
+                                                    <a  href="{% url 'calendarapp:edit_studio' studio.id %}" class="font-weight-bold text-xs" >
+                                                        Edit &nbsp;&nbsp;
+                                                        <i class="fas fa-pencil-alt ms-auto text-dark cursor-pointer" data-bs-toggle="tooltip" data-bs-placement="top" title="Edit Card"></i>
+                                                    </a>
+                                                   
+                                                </td>
+                                                <td>
+                                                    <!-- Delete button wrapped in a form -->
+                                                    <form method="POST" action="{% url 'calendarapp:delete_studio' studio.id %}" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this studio?');">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-link text-danger text-gradient">
+                                                            Delete &nbsp;&nbsp; <i class="far fa-trash-alt me-2"></i>
+                                                        </button>
+                                                    </form>
+                                                </td>
                                             </tr>
                                         {% endfor %}
                                     </tbody>

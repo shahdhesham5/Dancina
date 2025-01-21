@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import generic
 from datetime import timedelta, datetime, date
 import calendar
@@ -6,50 +6,58 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from calendarapp.models import  Event
+from calendarapp.models.event import StudioLocation, Instructor
 from calendarapp.forms import EventForm
 import json
 from clients.models import Client, Registration
 from calendarapp.models.event import Instructor, ClassOccurrence
 from django.utils.timezone import now
 import random
+from django.db.models import Q
+from django.contrib import messages
+from calendarapp.forms import AddOccurrenceClassForm
 
+from calendarapp.forms import AddPrivateClass, AddOtherClass
+import ast  
 
 class CalendarViewNew(LoginRequiredMixin, generic.View):
     login_url = "accounts:signin"
     template_name = "calendarapp/calendar.html"
     form_class = EventForm
-  
+
     def get(self, request, *args, **kwargs):
-        
         def generate_bright_color():
             """Generate a random bright color in hex format."""
             r = random.randint(150, 255)  # Red component (bright range)
             g = random.randint(150, 255)  # Green component (bright range)
             b = random.randint(150, 255)  # Blue component (bright range)
             return f"#{r:02x}{g:02x}{b:02x}"  # Convert to hex color code
-        
+
         forms = self.form_class()
-        
         clients = Client.objects.all()
         registrations = Registration.objects.all()
         instructors = Instructor.objects.all()
         allevents = Event.objects.all()
-   
+
         occurrences = ClassOccurrence.objects.all()
         event_list = []
-        event_colors = {}  # Dictionary to store static colors for each event name
+
+        # Assign static colors to events
+        for event in allevents:
+            if not event.color:  # Only assign a color if it doesn't already have one
+                event.color = generate_bright_color()
+                event.save()  # Save the color to the database
 
         for occurrence in occurrences:
             event = occurrence.event
-            
-            if event.name not in event_colors:
-                # Assign a bright color to this event name
-                event_colors[event.name] = generate_bright_color()
-                
-        
+
+            # Filter registrations based on classes_left and expiration_date
             filtered_registrations = event.registrations.filter(classes_left__gt=0, expiration_date__gte=now())
-            members = event.registrations.values_list('client__name', flat=True)
-            members = list(filtered_registrations.values('id', 'client__name', 'classes_left', 'classes_attended'))
+
+            # Exclude members who have already attended the class on the specific date
+            members = list(filtered_registrations.exclude(
+                Q(client__attendances__attendance_date=occurrence.date)
+            ).values('id', 'client__name', 'classes_left', 'classes_attended'))
 
             event_list.append({
                 "id": occurrence.id,
@@ -59,20 +67,107 @@ class CalendarViewNew(LoginRequiredMixin, generic.View):
                 "start": f"{occurrence.date}T{event.from_time.strftime('%H:%M:%S')}",  # Combine date and time as a string
                 "end": f"{occurrence.date}T{event.to_time.strftime('%H:%M:%S')}",      # Combine date and time as a string
                 "members": members,
-                "backgroundColor": event_colors[event.name],  # Use the bright color
-                "borderColor": event_colors[event.name],
+                "is_private": event.is_private,
+                "backgroundColor": event.color,  # Use the static color from the database
+                "borderColor": event.color,
                 "textColor": "#000000",  # Set text color to black for better contrast
             })
 
         context = {
             "allevents": allevents.count(),
             "clients": clients.count(),
-            "registrations" : registrations.count(),
+            "registrations": registrations.count(),
             "instructors": instructors.count(),
             "form": forms,
             "events": json.dumps(event_list),  # Pass JSON to the frontend
         }
         return render(request, self.template_name, context)
+
+# class CalendarViewNew(LoginRequiredMixin, generic.View):
+#     login_url = "accounts:signin"
+#     template_name = "calendarapp/calendar.html"
+#     form_class = EventForm
+  
+#     def get(self, request, *args, **kwargs):
+        
+#         def generate_bright_color():
+#             """Generate a random bright color in hex format."""
+#             r = random.randint(150, 255)  # Red component (bright range)
+#             g = random.randint(150, 255)  # Green component (bright range)
+#             b = random.randint(150, 255)  # Blue component (bright range)
+#             return f"#{r:02x}{g:02x}{b:02x}"  # Convert to hex color code
+        
+#         forms = self.form_class()
+        
+#         clients = Client.objects.all()
+#         registrations = Registration.objects.all()
+#         instructors = Instructor.objects.all()
+#         allevents = Event.objects.all()
+     
+#         # Assign static colors to events
+#         for event in allevents:
+#             if not event.color:  # Only assign a color if it doesn't already have one
+#                 event.color = generate_bright_color()
+#                 event.save()  # Save the color to the database
+
+#         occurrences = ClassOccurrence.objects.all()
+#         event_list = []
+#         event_colors = {}  # Dictionary to store static colors for each event name
+#         # Check if colors are already in session
+#         if 'event_colors' in request.session:
+#             event_colors = request.session['event_colors']
+#         else:
+#             # Generate and store colors in the session if not already there
+#             for occurrence in occurrences:
+#                 event = occurrence.event
+
+#                 if event.name not in event_colors:
+#                     # Assign a bright color to this event name
+#                     event_colors[event.name] = generate_bright_color()
+
+#             # Store the event colors in the session
+#             request.session['event_colors'] = event_colors
+
+#         for occurrence in occurrences:
+#             event = occurrence.event
+           
+#             if event.name not in event_colors:
+#                 # Assign a bright color to this event name
+#                 event_colors[event.name] = generate_bright_color()
+                
+        
+#             # Filter registrations based on classes_left and expiration_date
+#             filtered_registrations = event.registrations.filter(classes_left__gt=0, expiration_date__gte=now())
+            
+#             # Exclude members who have already attended the class on the specific date
+#             members = list(filtered_registrations.exclude(
+#                 Q(client__attendances__attendance_date=occurrence.date)
+#             ).values('id', 'client__name', 'classes_left', 'classes_attended'))
+
+
+#             event_list.append({
+#                 "id": occurrence.id,
+#                 "title": event.name,
+#                 "instructor": event.instructor.name,
+#                 "location": event.studio_location.name,
+#                 "start": f"{occurrence.date}T{event.from_time.strftime('%H:%M:%S')}",  # Combine date and time as a string
+#                 "end": f"{occurrence.date}T{event.to_time.strftime('%H:%M:%S')}",      # Combine date and time as a string
+#                 "members": members,
+#                 "is_private": event.is_private,
+#                 "backgroundColor": event_colors[event.name],  # Use the bright color
+#                 "borderColor": event_colors[event.name],
+#                 "textColor": "#000000",  # Set text color to black for better contrast
+#             })
+
+#         context = {
+#             "allevents": allevents.count(),
+#             "clients": clients.count(),
+#             "registrations" : registrations.count(),
+#             "instructors": instructors.count(),
+#             "form": forms,
+#             "events": json.dumps(event_list),  # Pass JSON to the frontend
+#         }
+#         return render(request, self.template_name, context)
 
     
     # def post(self, request, *args, **kwargs):
@@ -86,13 +181,211 @@ class CalendarViewNew(LoginRequiredMixin, generic.View):
     #     return render(request, self.template_name, context)
 
 
-def delete_event(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
+
+
+def add_private_class(request):
+    if request.method == 'POST':
+        form = AddPrivateClass(request.POST)
+        if form.is_valid():
+            # Save the private class instance
+            private_class = form.save(commit=False)
+            
+            # Get the first studio location if not provided in the form
+            if not private_class.studio_location:
+                # Fetch the first studio location from the database
+                default_studio_location = StudioLocation.objects.first()
+
+                # If there is no studio location in the database, handle the case gracefully
+                if not default_studio_location:
+                    return JsonResponse({'status': 'error', 'message': 'No default studio location available'})
+
+                private_class.studio_location = default_studio_location
+
+            
+
+            # Now create the event for the private class
+            event = Event.objects.create(
+                user=request.user,  # Assign the logged-in user
+                name=private_class.name,
+                instructor = private_class.instructor,
+                from_time=form.cleaned_data['from_time'],
+                to_time=form.cleaned_data['to_time'],
+                start_duration=private_class.start_duration,
+                end_duration=private_class.start_duration,  # Assuming the private class is only for one day
+                is_private = True,
+                studio_location=private_class.studio_location,
+            )
+
+            # Create a ClassOccurrence for the private class (this will be shown on the calendar)
+            ClassOccurrence.objects.create(
+                event=event,
+                date=private_class.start_duration
+            )
+            return redirect('calendarapp:calendar')
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Form is not valid'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+def add_other_class(request):
+    if request.method == 'POST':
+        form = AddOtherClass(request.POST)
+        if form.is_valid():
+            # Save the private class instance
+            other_class = form.save(commit=False)
+        
+            if not other_class.instructor:
+                default_instructor = Instructor.objects.first()
+                if not default_instructor:
+                    return JsonResponse({'status': 'error', 'message': 'No default instructor available'})
+
+                other_class.instructor = default_instructor
+
+
+            # Now create the event for the private class
+            event = Event.objects.create(
+                user=request.user,  # Assign the logged-in user
+                name=other_class.name,
+                instructor = other_class.instructor,
+                days=form.cleaned_data['days'],
+                studio_location=other_class.studio_location,
+                from_time=form.cleaned_data['from_time'],
+                to_time=form.cleaned_data['to_time'],
+                start_duration=other_class.start_duration,
+                end_duration=other_class.end_duration,  # Assuming the private class is only for one day
+                is_other = True,
+            )
+
+            # Create a ClassOccurrence for the private class (this will be shown on the calendar)
+            populate_class_occurrences(event)
+            
+            return redirect('calendarapp:calendar')
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Form is not valid'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+def add_new_session(request):
+    if request.method == "POST":
+        form = AddOccurrenceClassForm(request.POST)
+        if form.is_valid():
+            # Retrieve the event_id from the form
+            event_id = request.POST.get('event_id')
+            event = Event.objects.get(id=event_id)
+            
+            # Create the ClassOccurrence with the associated event
+            ClassOccurrence.objects.create(
+                event=event,
+                date=form.cleaned_data['date'],
+            )
+            
+            return redirect("calendarapp:calendar")
+    
+    # If the form is not valid, render the same page again with the form
+    context = {"form": form}
+    return render(request, 'private_classess.html', context)
+
+
+def delete_class_event(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    
     if request.method == 'POST':
         event.delete()
-        return JsonResponse({'message': 'Event sucess delete.'})
+        messages.success(request, 'Class deleted successfully.')
+        return redirect('calendarapp:all_events')
+
+def delete_event(request, event_id):
+    event = get_object_or_404(ClassOccurrence, id=event_id)
+    if request.method == 'POST':
+        event.delete()
+        return JsonResponse({'status': 'success'})
     else:
-        return JsonResponse({'message': 'Error!'}, status=400)
+        return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+def delete_private_event(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    
+    if request.method == 'POST':
+        event.delete()
+        messages.success(request, 'Class deleted successfully.')
+        return redirect('calendarapp:get_private_classes')
+
+
+def get_private_classes(request):
+    events = Event.objects.filter(is_active=True, is_private=True) 
+    others = Event.objects.filter(is_active=True, is_private=False, is_other=True) 
+    context = {"events": events, "others": others}
+    return render(request, 'private_classess.html', context)
+
+
+def edit_event(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+
+    if request.method == 'POST':
+        form = EventForm(request.POST, instance=event) 
+        if form.is_valid():
+            form.save()
+            return redirect('calendarapp:all_events')
+    else:
+        form = EventForm(instance=event)
+
+    return render(request, 'edit_event.html', {'form': form, 'event': event})
+
+def edit_private_event(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+
+    if request.method == 'POST':
+        form = AddPrivateClass(request.POST, instance=event) 
+        if form.is_valid():
+            form.save()
+            return redirect('calendarapp:get_private_classes')
+    else:
+        form = AddPrivateClass(instance=event)
+
+    return render(request, 'edit_private_event.html', {'form': form, 'event': event})
+
+def edit_other_event(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+
+    if request.method == 'POST':
+        form = AddOtherClass(request.POST, instance=event) 
+        if form.is_valid():
+            form.save()
+            return redirect('calendarapp:get_private_classes')
+    else:
+        form = AddOtherClass(instance=event)
+
+    return render(request, 'edit_other_event.html', {'form': form, 'event': event})
+
+
+
+
+
+def populate_class_occurrences(event):
+    start_date = event.start_duration
+    end_date = event.end_duration
+
+    # Parse the days from the event
+    if event.days:
+        days = event.days
+    if not days:
+        print(f"Event ID {event.id} has no valid days specified.")
+
+    # Iterate through the days in the current month
+    current_date = start_date
+    while current_date <= end_date:
+        if current_date.strftime("%A") in days:
+            # Create a ClassOccurrence if it doesn't exist
+            ClassOccurrence.objects.create(
+                event=event,
+                date=current_date,
+            )
+        current_date += timedelta(days=1)
+
+    print("Class occurrences for the event have been generated.")
+
+
+
+
+
 
 
 def next_week(request, event_id):
@@ -120,20 +413,17 @@ def next_day(request, event_id):
     else:
         return JsonResponse({'message': 'Error!'}, status=400)
 
-
 def get_date(req_day):
     if req_day:
         year, month = (int(x) for x in req_day.split("-"))
         return date(year, month, day=1)
     return datetime.today()
 
-
 def prev_month(d):
     first = d.replace(day=1)
     prev_month = first - timedelta(days=1)
     month = "month=" + str(prev_month.year) + "-" + str(prev_month.month)
     return month
-
 
 def next_month(d):
     days_in_month = calendar.monthrange(d.year, d.month)[1]
