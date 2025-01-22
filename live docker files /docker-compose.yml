@@ -35,7 +35,3 @@ services:
 volumes:
  dancina_db_data:
   name: dancina_db_data
-
-
-
-
