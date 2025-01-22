@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
+{% load custom_tags %}
 {% block title %}Event Calendar{% endblock title %}
 
 {% block extracss %}
@@ -101,16 +102,18 @@
                               <ul id="event-members"></ul>
                               <button id="save-attendance" type="button" class="btn btn-primary mt-2">Save Attendance</button>
                               </div>
-                          <div class="modal-footer">
-                              <button id="delete-event-button" data-event-id="" type="button" class="btn btn-danger">Delete</button>
-                          </div>
+                             
+                                <div class="modal-footer">
+                        
+                                    <button id="delete-event-button" data-event-id="" type="button" class="btn btn-danger">Delete</button>
+                                </div>
                         </div>
                       </form>
                   </div>
               </div>
           </div>
 
-        <!-- Modal to add New Private or Other -->
+        <!-- Modal to add New Private or New Student or Other -->
         <div class="modal fade" id="PrivateModal" tabindex="-1" role="dialog" aria-labelledby="PrivateModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
@@ -121,9 +124,10 @@
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>Do you want to add new private class or other ?</p>
+                        <p>Do you want to add new student or private class or other ?</p>
                     </div>
                     <div class="modal-footer">
+                        <button id="addStudentBtn" type="button" class="btn btn-success">New Student</button>
                         <button id="privateBtn" type="button" class="btn btn-success">Private CLass</button>
                         <button id="otherBtn" type="button" class="btn btn-success">Other</button>
                         <button id="modalClose" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -430,12 +434,14 @@
                 });
               }
             else if (isOther){
-                var modalInputEnd = document.getElementById('end_event_detail'); 
+                // var modalInputEnd = document.getElementById('end_event_detail'); 
                 var modal = document.getElementById('detailModal')
                 var modalTitle = document.getElementById('title_event_detail'); 
                 var modalStart = document.getElementById('start_event_detail'); 
                 var modalEnd = document.getElementById('end_event_detail'); 
                 var modalLocation = document.getElementById('location_event_detail'); 
+                var modalInstructor = document.getElementById('instructor_event_detail'); 
+                var instructorLabel = modalInstructor.parentElement;
                 var deleteButton = document.getElementById("delete-event-button");
                   deleteButton.setAttribute("data-event-id", id);
             
@@ -443,8 +449,12 @@
                   modalStart.textContent = start;
                   modalEnd.textContent = end;
                   modalLocation.textContent = location;
-                          
+                  if (instructor && isOther) {
+                    modalInstructor.textContent = instructor;
+                    instructorLabel.style.display = 'none'; // Show the instructor field
+                  }   
                   $('#detailModal').modal('show');
+                  console.log('isOther:', isOther);
 
                 } 
                 else {
@@ -499,6 +509,8 @@
                 modalLocation.textContent = location;
                         
                 $('#detailModal').modal('show');
+                
+
             }
           
           
@@ -521,6 +533,11 @@
           $('#PrivateModal').modal('hide');
           $('#AddOtherModal').modal('show');
       });
+      document.getElementById("addStudentBtn").addEventListener("click", function() {
+          $('#PrivateModal').modal('hide');
+          $('#ClientModal').modal('show');
+      });
+
 
       document.getElementById('save-attendance').addEventListener('click', function () {
           var url = "{% url 'clientsapp:save_attendance' %}";

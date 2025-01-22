@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
-
+{% load custom_tags %}
 {% block title %}Event List{% endblock title %}
 
 {% block breadcrumb %}
@@ -30,8 +30,10 @@
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 217.312px;">Days</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Start Time</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 189.281px;">End Time</th>
+                                            {% if request.user|is_superAdmin %}
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 120.281px;">Edit</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 120.281px;">Delete</th>
+                                            {% endif %}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -43,6 +45,7 @@
                                                 <td>{{ event.days }}</td>
                                                 <td>{{ event.from_time }}</td>
                                                 <td>{{ event.to_time }}</td>
+                                                {% if request.user|is_superAdmin %}
                                                 <td>
                                                     <a  href="{% url 'calendarapp:edit_event' event.id %}" class="font-weight-bold text-xs" >
                                                         Edit&nbsp;&nbsp;
@@ -58,6 +61,7 @@
                                                         </button>
                                                     </form>
                                                 </td>
+                                                {% endif %}
                                             </tr>
                                         {% endfor %}
                                     </tbody>

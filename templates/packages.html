@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
-
+{% load custom_tags %}
 {% block breadcrumb %}
   <div>
       <h1><i class="fa fa-box"></i> Packages</h1>
@@ -23,6 +23,7 @@
                                     <!-- Flex container for title and delete button -->
                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                         <h3 class="mb-0">{{ package_type.name }}</h3>
+                                        {% if request.user|is_superAdmin %}
                                         <!-- Delete button wrapped in a form -->
                                         <form method="POST" action="{% url 'calendarapp:delete_package_type' package_type.id %}" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this package type?');">
                                             {% csrf_token %}
@@ -30,6 +31,7 @@
                                                 Delete &nbsp;&nbsp;<i class="far fa-trash-alt me-2"></i>
                                             </button>
                                         </form>
+                                        {% endif %} 
                                     </div>
                                     <table class="table table-hover table-bordered dataTable no-footer" id="sampleTable" role="grid">
                                         <thead>
@@ -37,7 +39,7 @@
                                                 <th rowspan="2">Number<br> of<br> Classes</th>
                                                 <th colspan="2">Prices</th>
                                                 <th colspan="2">Price Per Class</th>
-                                                <th rowspan="2">Duration<br> of <br> Packages</th>
+                                                <th rowspan="2">Packages<br>Expiration</th>
                                                 
                                             </tr>
                                             <tr style="text-align: center; font-weight: bold; font-size: 18px;">
@@ -56,6 +58,7 @@
                                                     <td>{{ package.member_price_per_class }} LE</td>
                                                     <td>{{ package.non_member_price_per_class }} LE</td>
                                                     <td>{{ package.duration }} Month&nbsp;
+                                                    {% if request.user|is_superAdmin %}
                                                         <!-- Delete button wrapped in a form -->
                                                     <form method="POST" action="{% url 'calendarapp:delete_package' package.id %}" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this package?');">
                                                         {% csrf_token %}
@@ -63,6 +66,7 @@
                                                         <i class="far fa-trash-alt me-2"></i>
                                                         </button>
                                                     </form>
+                                                    {% endif %} 
                                                     </td>
                                                 </tr>
                                             {% endfor %}
@@ -141,7 +145,7 @@
                             <input type="number" id="non_member_price_per_class" name="non_member_price_per_class" class="form-control" min="0" required>
                         </div>
                         <div class="form-group">
-                            <label for="duration">Duration:</label>
+                            <label for="duration">Expire:</label>
                             <select id="duration" name="duration" class="form-control" required>
                                 <option value="1">1 Month</option>
                                 <option value="2">2 Months</option>

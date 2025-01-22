@@ -7,7 +7,7 @@ from calendarapp.models.event import Package, PackageType, ClassOccurrence
 from clients.forms import ClientForm, RegistrationStep1Form, RegistrationStep2Form, TransactionForm, TransactionSettingsForm
 from django.views.decorators.csrf import csrf_exempt
 import json
-from django.db import transaction
+from accounts.decorators import allowed_users
 from django.utils.timezone import now
 from django.contrib import messages
 import logging
@@ -42,6 +42,7 @@ def add_client(request):
     return JsonResponse({'success': False, 'message': 'Invalid method'}, status=405)
 
 @login_required(login_url="signup")
+@allowed_users(groups=['Dancina SuperAdmin'])
 def edit_client(request, pk):
     client = get_object_or_404(Client, pk=pk)
 
@@ -56,6 +57,7 @@ def edit_client(request, pk):
     return render(request, 'edit_client.html', {'form': form, 'client': client})
 
 @login_required(login_url="signup")
+@allowed_users(groups=['Dancina SuperAdmin'])
 def delete_client(request, pk):
     client = get_object_or_404(Client, pk=pk)
     
@@ -75,12 +77,20 @@ def get_registrations(request):
     for regist in registrations_list:
         if hasattr(regist, 'expiration_date') and regist.expiration_date:
             regist.expiration_date = regist.expiration_date.date()
-
+        else:
+            regist.expiration_date_minus_one_week = None
+            
+        # Calculate half of the number of sessions in the package
+        if hasattr(regist.package, 'number_of_sessions') and regist.package.number_of_sessions:
+            regist.half_sessions = regist.package.number_of_sessions / 2
+        else:
+            regist.half_sessions = 0
     today = now().date()
     context = {"registrations_list": registrations_list, "today": today}
     return render(request, 'registrations.html', context)
 
 @login_required(login_url="signup")
+@allowed_users(groups=['Dancina SuperAdmin'])
 def delete_registration(request, pk):
     regist = get_object_or_404(Registration, pk=pk)
     if request.method == 'POST':
@@ -177,52 +187,6 @@ def get_attendances(request):
     context = {"attendances_list":attendances_list}
     return render(request, 'attendance.html', context)
 
-# @csrf_exempt
-# @login_required(login_url="signup")
-# def save_attendance(request):
-#     if request.method == 'POST':
-#         try:
-#             data = json.loads(request.body)
-#             attendance = data.get('attendance', [])
-#             class_occurrence_id = data.get('class_occurrence_id')  # Include occurrence ID in the request
-            
-#             for record in attendance:
-#                 member_id = record.get('memberId')
-#                 attended = record.get('attended')
-#                 if attended:
-#                     try:
-#                         registration = Registration.objects.get(id=member_id)
-#                         class_occurrence = ClassOccurrence.objects.get(id=class_occurrence_id)
-                        
-#                         # Log to track the occurrence
-#                         logger.debug(f"Occurrence object: {class_occurrence}")
-#                         if registration.classes_left > 0:
-#                             registration.classes_left -= 1
-#                             registration.classes_attended += 1
-#                             registration._force_manual_update = True
-#                             # registration.save()
-                            
-#                             # Create an attendance record
-#                             with transaction.atomic():
-#                                 registration.save()
-#                                 Attendance.objects.create(
-#                                     client=registration.client,
-#                                     event=registration.class_obj,
-#                                     attendance_date=class_occurrence.date,  # Set the attendance date as the class occurrence date
-#                                 )
-#                             logger.debug(f"Updated Registration: {registration.client.name}, "
-#                                           f"Classes Left: {registration.classes_left}, "
-#                                           f"Classes Attended: {registration.classes_attended}")
-#                         else:
-#                             logger.warning(f"Registration {member_id} has no classes left.")
-#                     except Registration.DoesNotExist:
-#                         logger.error(f"Registration with ID {member_id} not found.")
-#             return JsonResponse({'status': 'success'})
-#         except Exception as e:
-#             logger.error(f"Error: {e}")
-#             return JsonResponse({'status': 'error', 'message': str(e)})
-#     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
-
 @csrf_exempt
 @login_required(login_url="signup")
 def save_attendance(request):
@@ -271,6 +235,7 @@ def save_attendance(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
 
 @login_required(login_url="signup")
+@allowed_users(groups=['Dancina SuperAdmin'])
 def delete_attendance(request, pk):
     attend = get_object_or_404(Attendance, pk=pk)
     
@@ -299,6 +264,7 @@ def get_transactions(request):
     return render(request, 'transactions.html', context)
 
 @login_required(login_url="signup")
+@allowed_users(groups=['Dancina SuperAdmin'])
 def delete_transaction(request, pk):
     trans = get_object_or_404(Transaction, pk=pk)
     
@@ -308,6 +274,7 @@ def delete_transaction(request, pk):
         return redirect('clientsapp:transactions')
 
 @login_required
+@allowed_users(groups=['Dancina SuperAdmin'])
 def update_transaction_settings(request):
     settings = TransactionSettings.objects.first()
     if not settings:

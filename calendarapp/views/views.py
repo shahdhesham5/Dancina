@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from calendarapp.forms import AddInstructorForm , AddStudioForm
 from calendarapp.models.event import Instructor, StudioLocation, Package, PackageType
 from django.contrib import messages
-
+from accounts.decorators import allowed_users
 
 @login_required(login_url="signup")
 def get_instructors(request):
@@ -33,6 +33,7 @@ def add_instructor(request):
 
     return JsonResponse({'success': False, 'message': 'Invalid method'}, status=405)
 
+@allowed_users(groups=['Dancina SuperAdmin'])
 def delete_instructor(request, instructor_id):
     instructor = get_object_or_404(Instructor, pk=instructor_id)
     
@@ -41,6 +42,7 @@ def delete_instructor(request, instructor_id):
         messages.success(request, 'Instructor deleted successfully.')
         return redirect('calendarapp:instructors')
 
+@allowed_users(groups=['Dancina SuperAdmin'])
 def edit_instructor(request, instructor_id):
     instructor = get_object_or_404(Instructor, pk=instructor_id)
 
@@ -82,6 +84,7 @@ def add_studio(request):
     form = AddStudioForm()
     return render(request, 'studios.html', {'form': form})
 
+@allowed_users(groups=['Dancina SuperAdmin'])
 def delete_studio(request, studio_id):
     studio = get_object_or_404(StudioLocation, pk=studio_id)
     
@@ -90,6 +93,7 @@ def delete_studio(request, studio_id):
         messages.success(request, 'Studio deleted successfully.')
         return redirect('calendarapp:studios')
 
+@allowed_users(groups=['Dancina SuperAdmin'])
 def edit_studio(request, studio_id):
     studio = get_object_or_404(StudioLocation, pk=studio_id)
 
@@ -155,6 +159,7 @@ def add_package(request):
 
     return JsonResponse({'success': False, 'error': 'Invalid request'})
 
+@allowed_users(groups=['Dancina SuperAdmin'])
 def delete_package_type(request, package_type_id):
     package_type = get_object_or_404(PackageType, pk=package_type_id)
     
@@ -163,6 +168,7 @@ def delete_package_type(request, package_type_id):
         messages.success(request, 'Package Type deleted successfully.')
         return redirect('calendarapp:packages')
 
+@allowed_users(groups=['Dancina SuperAdmin'])
 def delete_package(request, package_id):
     package = get_object_or_404(Package, pk=package_id)
     

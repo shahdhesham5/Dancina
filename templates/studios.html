@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
-
+{% load custom_tags %}
 {% block breadcrumb %}
   <div>
       <h1><i class="fa fa-map-marker"></i> Studios</h1>
@@ -26,9 +26,10 @@
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 150.312px;">Name</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 150.312px;">Location</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 150.312px;">Share Percentage</th>
+                                            {% if request.user|is_superAdmin %}
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 89.281px;">Edit</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 89.281px;">Delete</th>
-                                        
+                                            {% endif %} 
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -38,6 +39,7 @@
                                                 <td>{{ studio.name }}</td>
                                                 <td>{{ studio.address }}</td>
                                                 <td>{{ studio.share_percentage }}</td>
+                                                {% if request.user|is_superAdmin %}
                                                 <td>
                                                     <a  href="{% url 'calendarapp:edit_studio' studio.id %}" class="font-weight-bold text-xs" >
                                                         Edit &nbsp;&nbsp;
@@ -54,6 +56,7 @@
                                                         </button>
                                                     </form>
                                                 </td>
+                                                {% endif %} 
                                             </tr>
                                         {% endfor %}
                                     </tbody>

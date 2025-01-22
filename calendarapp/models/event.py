@@ -125,5 +125,8 @@ class Event(EventAbstract):
 class ClassOccurrence(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="occurrences")
     date = models.DateField(null=True) 
+    from_time = models.TimeField(null=True, blank=True)
+    to_time = models.TimeField(null=True, blank=True)
+    
     def __str__(self):
         return f"{self.event.name} on {self.date}"

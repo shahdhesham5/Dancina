@@ -138,8 +138,10 @@ class PackageForm(forms.ModelForm):
 class AddOccurrenceClassForm(forms.ModelForm):
     class Meta:
         model = ClassOccurrence
-        fields = ['date']
+        fields = ["date", "from_time", "to_time"]
         widgets = {
             "date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "from_time": forms.TimeInput(attrs={"type": "time", "class": "form-control"}),
+            "to_time": forms.TimeInput(attrs={"type": "time", "class": "form-control"}),
         }
         

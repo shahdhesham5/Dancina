@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
-
+{% load custom_tags %}
 {% block breadcrumb %}
   <div>
       <h1><i class="fa fa-chalkboard-teacher"></i> Instructors</h1>
@@ -27,9 +27,10 @@
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 102.141px;">Phone Number</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 150.312px;">Share Percentage for group class</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 150.312px;">Share Percentage for private class</th>
+                                            {% if request.user|is_superAdmin %}
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 89.281px;">Edit</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 89.281px;">Delete</th>
-                                        
+                                            {% endif %} 
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -40,6 +41,7 @@
                                                 <td>{{ instructor.phone_number }}</td>
                                                 <td>{{ instructor.share_percentage_group }} %</td>
                                                 <td>{{ instructor.share_percentage_private }} %</td>
+                                                {% if request.user|is_superAdmin %}
                                                 <td>
                                                     <a  href="{% url 'calendarapp:edit_instructor' instructor.id %}" class="font-weight-bold text-xs" >
                                                         Edit&nbsp;&nbsp;
@@ -56,6 +58,7 @@
                                                         </button>
                                                     </form>
                                                 </td>
+                                                {% endif %} 
                                             </tr>
                                         {% endfor %}
                                     </tbody>

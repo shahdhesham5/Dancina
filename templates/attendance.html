@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
+{% load custom_tags %}
 
 {% block breadcrumb %}
   <div>
@@ -22,7 +23,9 @@
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Position: activate to sort column ascending" style="width: 189.281px;">Student's Name</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Office: activate to sort column ascending" style="width: 189.281px;">Class Name</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 189.281px;">Date</th>
+                                            {% if request.user|is_superAdmin %}
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 189.281px;">Delete</th>
+                                            {% endif %}
 
                                         </tr>
                                     </thead>
@@ -32,6 +35,7 @@
                                                 <td>{{ attend.client.name }}</td>
                                                 <td>{{ attend.event.name }}</td>
                                                 <td>{{ attend.attendance_date }}</td>
+                                                {% if request.user|is_superAdmin %}
                                                 <td>
                                                     <!-- Delete button wrapped in a form -->
                                                     <form method="POST" action="{% url 'clientsapp:delete_attendance' attend.id %}" class="d-inline-block" onsubmit="return confirm('Are you sure you want to delete this Attendance?');">
@@ -41,6 +45,7 @@
                                                         </button>
                                                     </form>
                                                 </td>
+                                                {% endif %}
                                             </tr>
                                         {% endfor %}
                                     </tbody>

@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
-
+{% load custom_tags %}
 {% block breadcrumb %}
   <div>
       <h1><i class="fa fa-users"></i> Students </h1>
@@ -28,8 +28,10 @@
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 189.281px;">Address</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 189.281px;">Preferred Time</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 189.281px;">Is member</th>
+                                            {% if request.user|is_superAdmin %}
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 120.281px;">Edit</th>
                                             <th class="sorting" tabindex="0" aria-controls="sampleTable" rowspan="1" colspan="1" aria-label="Age: activate to sort column ascending" style="width: 120.281px;">Delete</th>
+                                            {% endif %}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -41,6 +43,7 @@
                                                 <td>{{ client.address }}</td>
                                                 <td>{{ client.preferred_time }}</td>
                                                 <td>{{ client.is_member }}</td>
+                                                {% if request.user|is_superAdmin %}
                                                 <td>
                                                     <a  href="{% url 'clientsapp:edit-client' client.id %}" class="font-weight-bold text-xs" >
                                                         Edit&nbsp;&nbsp;
@@ -56,6 +59,7 @@
                                                         </button>
                                                     </form>
                                                 </td>
+                                                {% endif %}
                                             </tr>
                                         {% endfor %}
                                     </tbody>
